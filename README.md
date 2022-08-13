@@ -4,16 +4,15 @@ In this project, I analyse reported COVID-19 case numbers in New South Wales (NS
 <p align="center">
     <img src="https://www.health.gov.au/sites/default/files/styles/content__max_width_no_upscale_/public/images/resources/webinars/2022/01/updated-covid-19-guidance-for-nsw-aged-care-providers.png?itok=Y-lvP0pd&timestamp=1641965714" alt="" width="400">
 </p>
-<p>
-    <center>
+<p align="center">
         <em> Image Source: 
-        <a href="https://www.health.gov.au/resources/webinars/updated-covid-19-guidance-for-nsw-aged-care-providers"> Australian Government Department of Health
-        </a></em>
-    </center>
+            <a href="https://www.health.gov.au/resources/webinars/updated-covid-19-guidance-for-nsw-aged-care-providers"> Australian Government Department of Health
+            </a>
+        </em>
 </p>
 
 ## Description
-This project contains a Jupyter Notebook (`covid-nsw.ipynb`) that provides insights discovered in the dataset, and the code used to uncover them. 
+In the `covid-nsw.ipynb` Jupyter Notebook, I provide analysis of reported COVID cases in NSW.
 
 In the Python environment, I used:
 * `pandas`
