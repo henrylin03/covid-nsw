@@ -23,7 +23,7 @@ DRIVER = setup_driver()
 
 
 def download():
-    print("\nDownloading...", end=" ", flush=True)
+    print("Downloading...", end=" ", flush=True)
     csv_download_button = DRIVER.find_element(
         By.XPATH,
         '//*[@id="content"]/div/div/div[2]/div/div[2]/div/div[1]/div/div[1]/div[2]/span[2]/span[1]/a',
