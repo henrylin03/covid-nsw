@@ -2,13 +2,9 @@
 In this project, I analyse reported COVID-19 case numbers in New South Wales (NSW), Australia. 
 
 <p align="center">
-    <img src="https://www.health.gov.au/sites/default/files/styles/content__max_width_no_upscale_/public/images/resources/webinars/2022/01/updated-covid-19-guidance-for-nsw-aged-care-providers.png?itok=Y-lvP0pd&timestamp=1641965714" alt="" width="400">
+    <img src="https://www.nsw.gov.au/sites/default/files/2020-06/covid-safe-logo.png" alt="" width="400">
 </p>
 <p align="center">
-        <em> Image Source: 
-            <a href="https://www.health.gov.au/resources/webinars/updated-covid-19-guidance-for-nsw-aged-care-providers"> Australian Government Department of Health
-            </a>
-        </em>
 </p>
 
 ## Description
