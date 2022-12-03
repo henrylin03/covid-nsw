@@ -5,10 +5,6 @@ In this project, I analyse reported COVID-19 case numbers in New South Wales (NS
     <img src="https://www.nsw.gov.au/sites/default/files/2020-06/covid-safe-logo.png" alt="" width="400">
 </p>
 <p align="center">
-        <em> Image Source: 
-            <a href="https://www.health.gov.au/resources/webinars/updated-covid-19-guidance-for-nsw-aged-care-providers"> Australian Government Department of Health
-            </a>
-        </em>
 </p>
 
 ## Description
