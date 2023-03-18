@@ -7,6 +7,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 
 
+def run_dashboard():
+    st.title("COVID in NSW")
+    st.write(f"_Last updated: **{get_last_updated_date()}**_")
+
+    # test lgas
+    lga_name = st.sidebar.selectbox(
+        "Select Local Government Area (LGA)",
+        get_lgas(),
+    )
+
+
 def setup_chromedriver():
     options = webdriver.ChromeOptions()
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -16,7 +27,7 @@ def setup_chromedriver():
     )
 
 
-def load_csv() -> pd.DataFrame:
+def load_and_clean_csv() -> pd.DataFrame:
     csv_url = "https://data.nsw.gov.au/data/dataset/aefcde60-3b0c-4bc0-9af1-6fe652944ec2/resource/5d63b527-e2b8-4c42-ad6f-677f14433520/download/confirmed_cases_table1_location_agg.csv"
     df = pd.read_csv(csv_url)
     df = df[["notification_date", "lga_name19", "confirmed_cases_count"]]
@@ -43,16 +54,12 @@ def get_last_updated_date() -> str:
 
 
 def get_lgas() -> tuple:
-    covid_df = load_csv()
-    lgas_set = sorted(set(covid_df.lga.dropna()))
-    return tuple(lgas_set)
+    covid_df = load_and_clean_csv()
+    all_lgas = set(covid_df.lga.dropna())
+    non_lgas = {"Correctional settings", "Hotel Quarantine"}
+    lgas_filtered = all_lgas - non_lgas
+    return tuple(sorted(lgas_filtered))
 
 
-st.title("COVID in NSW")
-st.write(f"_Last updated: **{get_last_updated_date()}**_")
-
-# test lgas
-lga_name = st.sidebar.selectbox(
-    "Select Local Government Area (LGA)",
-    get_lgas(),
-)
+if __name__ == "__main__":
+    run_dashboard()
