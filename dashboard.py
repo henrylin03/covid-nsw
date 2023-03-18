@@ -22,7 +22,11 @@ def load_csv() -> pd.DataFrame:
     df = df[["notification_date", "lga_name19", "confirmed_cases_count"]]
     df.columns = ["date", "lga", "cases_count"]
     df = df.groupby(["date", "lga"]).cases_count.sum().reset_index()
-    df["lga"] = df.lga.str.rstrip(" (A)").str.rstrip(" (C)").str.rstrip(" (NSW)")
+    df["lga"] = (
+        df.lga.str.replace(" (A)", "", regex=False)
+        .str.replace(" (C)", "", regex=False)
+        .str.replace(" (NSW)", "", regex=False)
+    )
     return df
 
 
