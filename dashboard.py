@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 
 
-def setup_chromedriver() -> webdriver:
+def setup_chromedriver() -> webdriver.Chrome:
     options = webdriver.ChromeOptions()
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     options.add_argument("--start-maximized")
