@@ -17,6 +17,7 @@ def setup_chromedriver() -> webdriver:
     )
 
 
+@st.cache_data
 def load_and_clean_csv() -> pd.DataFrame:
     csv_url = "https://data.nsw.gov.au/data/dataset/aefcde60-3b0c-4bc0-9af1-6fe652944ec2/resource/5d63b527-e2b8-4c42-ad6f-677f14433520/download/confirmed_cases_table1_location_agg.csv"
     df = pd.read_csv(csv_url)
@@ -32,6 +33,7 @@ def load_and_clean_csv() -> pd.DataFrame:
     return df
 
 
+@st.cache_data
 def get_start_date() -> datetime.date:
     covid_df = load_and_clean_csv()
     first_case_date = min(covid_df.date)
@@ -39,7 +41,8 @@ def get_start_date() -> datetime.date:
     return first_case_date_datetime.date()
 
 
-def get_last_updated_date():
+@st.cache_data
+def get_last_updated_date() -> datetime.date:
     DRIVER = setup_chromedriver()
     data_nsw_url = "https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q="
     DRIVER.get(data_nsw_url)
@@ -51,6 +54,7 @@ def get_last_updated_date():
     return datetime.datetime.strptime(last_updated_date_str, "%d/%m/%Y").date()
 
 
+@st.cache_data
 def get_lgas() -> tuple:
     covid_df = load_and_clean_csv()
     all_lgas = set(covid_df.lga.dropna())
@@ -59,26 +63,35 @@ def get_lgas() -> tuple:
     return tuple(sorted(lgas_filtered))
 
 
-covid_df = load_and_clean_csv()
-dataset_start_date = get_start_date()
-dataset_last_updated_date = get_last_updated_date()
-dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
+def main():
+    st.set_page_config(
+        page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
+    )
 
-st.set_page_config(
-    page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
-)
-st.title(":adhesive_bandage: COVID in NSW")
-st.write(f"_last updated: **{dataset_last_updated_date_formatted}**_")
-st.dataframe(covid_df, use_container_width=True)
+    covid_df = load_and_clean_csv()
+    dataset_start_date = get_start_date()
+    dataset_last_updated_date = get_last_updated_date()
+    dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
-st.sidebar.header("Filters")
-lga_name = st.sidebar.selectbox(
-    "Local Government Area (LGA)",
-    get_lgas(),
-)
-date_range = st.sidebar.date_input(
-    "Date Range",
-    min_value=dataset_start_date,
-    max_value=dataset_last_updated_date,
-    value=[dataset_start_date, dataset_last_updated_date],
-)
+    st.title(":adhesive_bandage: COVID in NSW")
+    st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
+    st.dataframe(covid_df, use_container_width=True)
+
+    st.sidebar.header("Filters")
+    lga_name = st.sidebar.selectbox(
+        "Local Government Area (LGA)",
+        get_lgas(),
+    )
+
+    ## CAN I CHANGE FORMAT OF THE DATES?
+    date_range = st.sidebar.date_input(
+        "Date Range",
+        min_value=dataset_start_date,
+        max_value=dataset_last_updated_date,
+        value=[dataset_start_date, dataset_last_updated_date],
+    )
+
+    ## ADD COLUMNS AND VISUALISATIONS
+
+
+main()
