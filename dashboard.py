@@ -75,7 +75,6 @@ def main():
 
     st.title(":adhesive_bandage: COVID in NSW")
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
-    st.dataframe(covid_df, use_container_width=True)
 
     st.sidebar.header("Filters")
     lga_name = st.sidebar.selectbox(
@@ -91,7 +90,39 @@ def main():
         value=[dataset_start_date, dataset_last_updated_date],
     )
 
-    ## ADD COLUMNS AND VISUALISATIONS
+    ## ADD COLUMNS AND VISUALISATIONS (MAYBE WIREFRAME FIRST?)
+    ### REFORMAT NUMBERS WITH COMMAS
+    total_cases_metric, total_daily_cases_metric = st.columns(2)
+    total_cases = int(covid_df.cases_count.sum())
+    total_cases_metric.metric(
+        label="Total Cases",
+        value=total_cases,
+        delta=total_cases - 10,
+        delta_color="inverse",
+    )
+
+    # one day lag in reporting
+    day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
+    latest_day_filtered_df = covid_df[
+        covid_df["date"] == day_before_date.strftime("%Y-%m-%d")
+    ]
+    latest_daily_cases = int(latest_day_filtered_df.cases_count.sum())
+    two_days_before_date = dataset_last_updated_date - datetime.timedelta(days=2)
+    two_days_before_cases = int(
+        covid_df[
+            covid_df.date == two_days_before_date.strftime("%Y-%m-%d")
+        ].cases_count.sum()
+    )
+
+    total_daily_cases_metric.metric(
+        label="Daily Cases",
+        value=latest_daily_cases,
+        delta=latest_daily_cases - two_days_before_cases,
+        delta_color="inverse",
+        help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date above',
+    )
+
+    st.dataframe(covid_df, use_container_width=True)
 
 
 main()
