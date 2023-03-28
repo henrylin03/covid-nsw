@@ -6,6 +6,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as md
+import seaborn as sns
 
 
 @st.cache_data
@@ -65,6 +68,33 @@ def get_lgas() -> tuple:
     return tuple(lgas_filtered_sorted)
 
 
+def plot_area_chart(input_df: pd.DataFrame):
+    daily_cases = input_df.groupby("date").sum().reset_index()
+    daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
+
+    sns.set_style("dark", {"axes.facecolor": "0.95"})
+    sns.set_palette("dark")
+
+    fig, ax = plt.subplots(figsize=(10, 2))
+    sns.lineplot(x="date", y="cases_count", data=daily_cases, ax=ax, linewidth=1.1)
+    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, alpha=0.2)
+
+    ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
+    ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
+    ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
+    ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
+    plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
+    ax.tick_params(axis="both", which="major", labelsize=8)
+    ax.tick_params(axis="x", which="minor", labelsize=7)
+
+    # ax.figure.suptitle("Reported COVID Cases in NSW", fontsize=6)
+    ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
+    ax.set_xlabel(None)
+    fig.subplots_adjust(top=0.89)
+
+    return fig
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
@@ -118,8 +148,10 @@ def main():
     )
 
     # visualisations
-    total_daily_cases = covid_df.groupby("date").sum().reset_index()
-    st.area_chart(data=total_daily_cases, x="date", y="cases_count")
+    st.markdown("**Daily Cases**")
+    daily_cases_area_chart = plot_area_chart(covid_df)
+    st.pyplot(daily_cases_area_chart)
+    # st.area_chart(data=total_daily_cases, x="date", y="cases_count")
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
