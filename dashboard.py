@@ -8,15 +8,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 
 
-def setup_chromedriver() -> webdriver.Chrome:
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    options.add_argument("--start-maximized")
-    return webdriver.Chrome(
-        options=options, service=Service(ChromeDriverManager().install())
-    )
-
-
 @st.cache_data
 def load_and_clean_csv() -> pd.DataFrame:
     csv_url = "https://data.nsw.gov.au/data/dataset/aefcde60-3b0c-4bc0-9af1-6fe652944ec2/resource/5d63b527-e2b8-4c42-ad6f-677f14433520/download/confirmed_cases_table1_location_agg.csv"
@@ -54,13 +45,24 @@ def get_last_updated_date() -> datetime.date:
     return datetime.datetime.strptime(last_updated_date_str, "%d/%m/%Y").date()
 
 
+def setup_chromedriver() -> webdriver.Chrome:
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+    options.add_argument("--start-maximized")
+    return webdriver.Chrome(
+        options=options, service=Service(ChromeDriverManager().install())
+    )
+
+
 @st.cache_data
 def get_lgas() -> tuple:
     covid_df = load_and_clean_csv()
     all_lgas = set(covid_df.lga.dropna())
     non_lgas = {"Correctional settings", "Hotel Quarantine"}
-    lgas_filtered = all_lgas - non_lgas
-    return tuple(sorted(lgas_filtered))
+
+    lgas_filtered_sorted = sorted(all_lgas - non_lgas)
+    lgas_filtered_sorted.insert(0, "All")
+    return tuple(lgas_filtered_sorted)
 
 
 def main():
@@ -90,12 +92,11 @@ def main():
         value=[dataset_start_date, dataset_last_updated_date],
     )
 
-    ## ADD COLUMNS AND VISUALISATIONS (MAYBE WIREFRAME FIRST?)
+    # metrics
     total_cases_metric, total_daily_cases_metric = st.columns(2)
     total_cases = int(covid_df.cases_count.sum())
     total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
 
-    # one day lag in reporting
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
     latest_day_filtered_df = covid_df[
         covid_df["date"] == day_before_date.strftime("%Y-%m-%d")
@@ -116,6 +117,11 @@ def main():
         help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
     )
 
+    # visualisations
+    total_daily_cases = covid_df.groupby("date").sum().reset_index()
+    st.area_chart(data=total_daily_cases, x="date", y="cases_count")
+
+    # dataframe
     st.dataframe(covid_df, use_container_width=True)
 
 
