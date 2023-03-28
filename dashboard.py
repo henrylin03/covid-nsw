@@ -8,6 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
+import matplotlib.ticker as mtick
 import seaborn as sns
 
 
@@ -84,8 +85,12 @@ def plot_area_chart(input_df: pd.DataFrame):
     ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
     ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
     plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
-    ax.tick_params(axis="both", which="major", labelsize=8)
-    ax.tick_params(axis="x", which="minor", labelsize=7)
+    ax.tick_params(axis="x", which="minor", labelsize=5)
+
+    y_axis_fmt = "{x:,.0f}"
+    y_ticks = mtick.StrMethodFormatter(y_axis_fmt)
+    ax.yaxis.set_major_formatter(y_ticks)
+    ax.tick_params(axis="both", which="major", labelsize=6)
 
     # ax.figure.suptitle("Reported COVID Cases in NSW", fontsize=6)
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
