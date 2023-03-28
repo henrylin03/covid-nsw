@@ -91,15 +91,9 @@ def main():
     )
 
     ## ADD COLUMNS AND VISUALISATIONS (MAYBE WIREFRAME FIRST?)
-    ### REFORMAT NUMBERS WITH COMMAS
     total_cases_metric, total_daily_cases_metric = st.columns(2)
     total_cases = int(covid_df.cases_count.sum())
-    total_cases_metric.metric(
-        label="Total Cases",
-        value=total_cases,
-        delta=total_cases - 10,
-        delta_color="inverse",
-    )
+    total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
 
     # one day lag in reporting
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
@@ -116,8 +110,8 @@ def main():
 
     total_daily_cases_metric.metric(
         label="Daily Cases",
-        value=latest_daily_cases,
-        delta=latest_daily_cases - two_days_before_cases,
+        value=f"{latest_daily_cases:,}",
+        delta=f"{latest_daily_cases - two_days_before_cases:,}",
         delta_color="inverse",
         help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date above',
     )
