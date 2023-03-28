@@ -113,7 +113,7 @@ def main():
         value=f"{latest_daily_cases:,}",
         delta=f"{latest_daily_cases - two_days_before_cases:,}",
         delta_color="inverse",
-        help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date above',
+        help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
     )
 
     st.dataframe(covid_df, use_container_width=True)
