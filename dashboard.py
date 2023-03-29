@@ -92,10 +92,8 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.yaxis.set_major_formatter(y_ticks)
     ax.tick_params(axis="both", which="major", labelsize=6)
 
-    # ax.figure.suptitle("Reported COVID Cases in NSW", fontsize=6)
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
     ax.set_xlabel(None)
-    fig.subplots_adjust(top=0.89)
 
     return fig
 
