@@ -76,7 +76,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     sns.set_style("dark", {"axes.facecolor": "0.95"})
     sns.set_palette("dark")
 
-    fig, ax = plt.subplots(figsize=(7, 2), dpi=1000)
+    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
     sns.lineplot(x="date", y="cases_count", data=daily_cases, ax=ax, linewidth=0.8)
     plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, alpha=0.2)
 
@@ -117,13 +117,12 @@ def main():
         get_lgas(),
     )
 
-    ## CAN I CHANGE FORMAT OF THE DATES?
-    date_range = st.sidebar.date_input(
-        "Date Range",
-        min_value=dataset_start_date,
-        max_value=dataset_last_updated_date,
-        value=[dataset_start_date, dataset_last_updated_date],
-    )
+    # date_range = st.sidebar.date_input(
+    #     "Date Range",
+    #     min_value=dataset_start_date,
+    #     max_value=dataset_last_updated_date,
+    #     value=[dataset_start_date, dataset_last_updated_date],
+    # )
 
     # metrics
     total_cases_metric, total_daily_cases_metric = st.columns(2)
