@@ -70,7 +70,7 @@ def get_lgas() -> tuple:
 
 
 def plot_daily_cases_area_chart(input_df: pd.DataFrame):
-    daily_cases = input_df.groupby("date").sum().reset_index()
+    daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
     daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
 
     sns.set_style("dark", {"axes.facecolor": "0.95"})
