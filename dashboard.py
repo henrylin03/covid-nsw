@@ -77,7 +77,6 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     sns.set_palette("dark")
 
     fig, ax = plt.subplots(figsize=(7, 2), dpi=1000)
-    # fig.set_dpi(500)
     sns.lineplot(x="date", y="cases_count", data=daily_cases, ax=ax, linewidth=0.8)
     plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, alpha=0.2)
 
