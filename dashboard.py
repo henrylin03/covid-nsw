@@ -98,6 +98,34 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     return fig
 
 
+def plot_total_cases_by_lga(input_df: pd.DataFrame):
+    df = (
+        input_df.groupby("lga")
+        .sum(numeric_only=True)
+        .reset_index()
+        .sort_values("cases_count", ascending=False)
+    )
+    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
+    sns.barplot(
+        x="cases_count",
+        y="lga",
+        data=df.head(10),
+        orient="h",
+        saturation=10,
+        color="#ef5675",
+        edgecolor="black",
+        linewidth=0.7,
+        ax=ax,
+    )
+    ax.set_xlabel("Total Cases ('000s)", fontsize=5)
+    ax.set_ylabel("LGA", fontsize=5)
+    ax.tick_params(axis="both", labelsize=5)
+    ax.xaxis.set_major_formatter(
+        mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x / 1000))
+    )
+    return fig
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
@@ -155,6 +183,10 @@ def main():
     st.markdown("**Daily Cases**")
     daily_cases_area_chart = plot_daily_cases_area_chart(covid_df)
     st.pyplot(daily_cases_area_chart)
+
+    st.markdown("**Top 10 LGAs by Total Cases**")
+    cases_by_lga_barplot = plot_total_cases_by_lga(covid_df)
+    st.pyplot(cases_by_lga_barplot)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
