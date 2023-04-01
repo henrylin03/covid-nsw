@@ -125,7 +125,7 @@ def main():
     # )
 
     # metrics
-    total_cases_metric, total_daily_cases_metric = st.columns(2)
+    total_cases_metric, total_daily_cases_metric, days_since_zero_day = st.columns(3)
     total_cases = int(covid_df.cases_count.sum())
     total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
 
@@ -149,11 +149,12 @@ def main():
         help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
     )
 
+    # days_since_zero_day.metric(label='Days Since Last "Zero" Day', value=)
+
     # visualisations
     st.markdown("**Daily Cases**")
     daily_cases_area_chart = plot_daily_cases_area_chart(covid_df)
     st.pyplot(daily_cases_area_chart)
-    # st.area_chart(data=total_daily_cases, x="date", y="cases_count")
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
