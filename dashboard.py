@@ -1,5 +1,6 @@
 import sys
 import datetime
+from PIL import Image
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -126,6 +127,17 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
+def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
+    res_df = input_df.copy()
+    lga_name = st.sidebar.selectbox(
+        "Local Government Area (LGA)",
+        get_lgas(),
+    )
+    if lga_name == "All":
+        return res_df
+    return res_df[res_df.lga == lga_name]
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
@@ -140,10 +152,7 @@ def main():
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
     st.sidebar.header("Filters")
-    lga_name = st.sidebar.selectbox(
-        "Local Government Area (LGA)",
-        get_lgas(),
-    )
+    covid_df = filter_df_by_lga(covid_df)
 
     # date_range = st.sidebar.date_input(
     #     "Date Range",
