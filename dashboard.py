@@ -144,7 +144,7 @@ def main():
     )
 
     covid_df = load_and_clean_csv()
-    dataset_start_date = get_start_date()
+    # dataset_start_date = get_start_date()
     dataset_last_updated_date = get_last_updated_date()
     dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
