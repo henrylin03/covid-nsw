@@ -1,6 +1,6 @@
 import sys
+import json
 import datetime
-from PIL import Image
 import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import matplotlib.ticker as mtick
 import seaborn as sns
+import plotly.graph_objs as go
 
 
 @st.cache_data
@@ -125,6 +126,10 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x / 1000))
     )
     return fig
+
+
+def plot_choropleth(input_df: pd.DataFrame):
+    return
 
 
 def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
