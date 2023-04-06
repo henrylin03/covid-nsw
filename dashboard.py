@@ -31,14 +31,6 @@ def load_and_clean_csv() -> pd.DataFrame:
 
 
 @st.cache_data
-def get_start_date() -> datetime.date:
-    covid_df = load_and_clean_csv()
-    first_case_date = min(covid_df.date)
-    first_case_date_datetime = datetime.datetime.strptime(first_case_date, "%Y-%m-%d")
-    return first_case_date_datetime.date()
-
-
-@st.cache_data
 def get_last_updated_date() -> datetime.date:
     DRIVER = setup_chromedriver()
     data_nsw_url = "https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q="
@@ -150,7 +142,6 @@ def main():
     )
 
     covid_df = load_and_clean_csv()
-    # dataset_start_date = get_start_date()
     dataset_last_updated_date = get_last_updated_date()
     dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
@@ -159,13 +150,6 @@ def main():
 
     st.sidebar.header("Filters")
     covid_df = filter_df_by_lga(covid_df)
-
-    # date_range = st.sidebar.date_input(
-    #     "Date Range",
-    #     min_value=dataset_start_date,
-    #     max_value=dataset_last_updated_date,
-    #     value=[dataset_start_date, dataset_last_updated_date],
-    # )
 
     # metrics
     total_cases_metric, total_daily_cases_metric, days_since_zero_day = st.columns(3)
@@ -191,8 +175,6 @@ def main():
         delta_color="inverse",
         help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
     )
-
-    # days_since_zero_day.metric(label='Days Since Last "Zero" Day', value=)
 
     # visualisations
     st.markdown("**Daily Cases**")
