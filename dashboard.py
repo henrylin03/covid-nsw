@@ -144,13 +144,27 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return res_df[res_df.lga == lga_name]
 
 
+def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
+    d_range = pd.date_range(start_date, end_date, freq="d")
+    dates_df = pd.DataFrame(d_range)
+    dates_df.columns = ["date"]
+
+    input_df.date = pd.to_datetime(input_df.date)
+    zero_days_imputed_df = dates_df.merge(input_df, how="left").fillna(0)
+    last_zero_day = (
+        zero_days_imputed_df.date[zero_days_imputed_df.cases_count == 0]
+    ).max()
+    last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%d %b %Y")
+    return last_zero_day_formatted
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":chart_with_upwards_trend:", layout="wide"
     )
 
     covid_df = load_and_clean_csv()
-    # dataset_start_date = get_start_date()
+    dataset_start_date = get_start_date()
     dataset_last_updated_date = get_last_updated_date()
     dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
@@ -160,15 +174,8 @@ def main():
     st.sidebar.header("Filters")
     covid_df = filter_df_by_lga(covid_df)
 
-    # date_range = st.sidebar.date_input(
-    #     "Date Range",
-    #     min_value=dataset_start_date,
-    #     max_value=dataset_last_updated_date,
-    #     value=[dataset_start_date, dataset_last_updated_date],
-    # )
-
     # metrics
-    total_cases_metric, total_daily_cases_metric, days_since_zero_day = st.columns(3)
+    total_cases_metric, total_daily_cases_metric, last_zero_day_metric = st.columns(3)
     total_cases = int(covid_df.cases_count.sum())
     total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
 
@@ -192,7 +199,13 @@ def main():
         help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
     )
 
-    # days_since_zero_day.metric(label='Days Since Last "Zero" Day', value=)
+    last_zero_day = find_last_zero_day(
+        covid_df,
+        start_date=dataset_start_date,
+        end_date=day_before_date,
+    )
+
+    last_zero_day_metric.metric(label="Last Zero Day", value=last_zero_day)
 
     # visualisations
     st.markdown("**Daily Cases**")
