@@ -101,12 +101,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
 
 
 def plot_total_cases_by_lga(input_df: pd.DataFrame):
-    df = (
-        input_df.groupby("lga")
-        .sum(numeric_only=True)
-        .reset_index()
-        .sort_values("cases_count", ascending=False)
-    )
+    df = total_cases_by_lga(input_df)
     fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
     sns.barplot(
         x="cases_count",
@@ -129,7 +124,38 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
 
 
 def plot_choropleth(input_df: pd.DataFrame):
-    return
+    total_cases_by_lga_df = total_cases_by_lga(input_df)
+
+    with open("data/nsw-lga-boundaries.geojson") as geojson_file:
+        nsw_geojson = json.load(geojson_file)
+    fig = go.Figure(
+        go.Choroplethmapbox(
+            geojson=nsw_geojson,
+            locations=total_cases_by_lga_df.lga,
+            z=total_cases_by_lga_df.cases_count,
+            colorscale="sunsetdark",
+        )
+    )
+    fig.update_layout(
+        mapbox_style="white-bg",
+        mapbox_zoom=6.6,
+        mapbox_center={"lat": -31.84, "lon": 145.61},
+        width=800,
+        height=600,
+    )
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+
+    return fig
+
+
+def total_cases_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
+    totalled_df = (
+        input_df.groupby("lga")
+        .sum(numeric_only=True)
+        .reset_index()
+        .sort_values("cases_count", ascending=False)
+    )
+    return totalled_df
 
 
 def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
@@ -201,6 +227,10 @@ def main():
     st.markdown("**Top 10 LGAs by Total Cases**")
     cases_by_lga_barplot = plot_total_cases_by_lga(covid_df)
     st.pyplot(cases_by_lga_barplot)
+
+    st.markdown("**Total Cases by LGA**")
+    nsw_choropleth = plot_choropleth(covid_df)
+    st.plotly_chart(nsw_choropleth)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
