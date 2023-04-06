@@ -31,6 +31,14 @@ def load_and_clean_csv() -> pd.DataFrame:
 
 
 @st.cache_data
+def get_start_date() -> datetime.date:
+    covid_df = load_and_clean_csv()
+    first_case_date = min(covid_df.date)
+    first_case_date_datetime = datetime.datetime.strptime(first_case_date, "%Y-%m-%d")
+    return first_case_date_datetime.date()
+
+
+@st.cache_data
 def get_last_updated_date() -> datetime.date:
     DRIVER = setup_chromedriver()
     data_nsw_url = "https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q="
@@ -134,6 +142,10 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     if lga_name == "All":
         return res_df
     return res_df[res_df.lga == lga_name]
+
+
+def find_zero_days(input_df: pd.DataFrame) -> pd.DataFrame:
+    return
 
 
 def main():
