@@ -21,7 +21,6 @@ In the `covid-nsw.ipynb` Jupyter Notebook, I provide analysis of reported COVID 
 ## Data Sources
 
 - NSW COVID-19 cases by location ([Data.NSW](https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q=))
-- NSW Administrative Boundaries (Local Government Area) ([NSW Government: Spatial Collaboration Portal](https://portal.spatial.nsw.gov.au/portal/home/item.html?id=3e1edb6861524b5490c74db81e42433a/))
 
 ## Feedback
 
