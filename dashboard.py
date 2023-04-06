@@ -123,32 +123,6 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
-def plot_choropleth(input_df: pd.DataFrame):
-    total_cases_by_lga_df = total_cases_by_lga(input_df)
-
-    with open("data/nsw_lga.json") as file:
-        nsw_lgas_json = json.load(file)
-    fig = go.Figure(
-        go.Choroplethmapbox(
-            geojson=nsw_lgas_json,
-            locations=total_cases_by_lga_df.lga,
-            z=total_cases_by_lga_df.cases_count,
-            colorscale="sunsetdark",
-            marker_opacity=0.5,
-            marker_line_width=1,
-        )
-    )
-    fig.update_layout(
-        mapbox_style="white-bg",
-        mapbox_zoom=5,
-        mapbox_center={"lat": -31.84, "lon": 145.61},
-    )
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-    fig.show()
-
-    return fig
-
-
 def total_cases_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     totalled_df = (
         input_df.groupby("lga")
@@ -228,10 +202,6 @@ def main():
     st.markdown("**Top 10 LGAs by Total Cases**")
     cases_by_lga_barplot = plot_total_cases_by_lga(covid_df)
     st.pyplot(cases_by_lga_barplot)
-
-    st.markdown("**Total Cases by LGA**")
-    nsw_choropleth = plot_choropleth(covid_df)
-    st.plotly_chart(nsw_choropleth)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
