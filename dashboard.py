@@ -145,7 +145,7 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     st.set_page_config(
-        page_title="COVID in NSW", page_icon=":adhesive_bandage:", layout="wide"
+        page_title="COVID in NSW", page_icon=":chart_with_upwards_trend:", layout="wide"
     )
 
     covid_df = load_and_clean_csv()
@@ -153,7 +153,7 @@ def main():
     dataset_last_updated_date = get_last_updated_date()
     dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
-    st.title(":adhesive_bandage: COVID in NSW")
+    st.title(":chart_with_upwards_trend: COVID in NSW")
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
     st.sidebar.header("Filters")
