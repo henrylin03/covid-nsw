@@ -145,11 +145,22 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
 def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
     # generate every day's date
     d_range = pd.date_range(start_date, end_date, freq="d")
-    dates_df = pd.DataFrame(d_range)
-    dates_df.columns = ["date"]
+    dates_df = pd.DataFrame(d_range, columns=["date"])
+
+    # merge every LGA
+    lgas_list = list(get_lgas())
+    lgas_list.remove("All")
+    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
+    lgas_df["key"] = 0
+    dates_df["key"] = 0
+
+    impute_df = dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
 
     input_df.date = pd.to_datetime(input_df.date)
-    zero_days_imputed_df = dates_df.merge(input_df, how="left").fillna(0)
+    zero_days_imputed_df = (
+        impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
+    )
+
     last_zero_day = (
         zero_days_imputed_df.date[zero_days_imputed_df.cases_count == 0]
     ).max()
