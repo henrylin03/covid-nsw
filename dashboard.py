@@ -143,6 +143,7 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
+    # generate every day's date
     d_range = pd.date_range(start_date, end_date, freq="d")
     dates_df = pd.DataFrame(d_range)
     dates_df.columns = ["date"]
@@ -202,7 +203,7 @@ def main():
     last_zero_day_formatted = datetime.datetime.strptime(
         last_zero_day, "%d %b %Y"
     ).date()
-    days_since_last_zero_day = (last_zero_day_formatted - day_before_date).days
+    days_since_last_zero_day = abs((day_before_date - last_zero_day_formatted).days)
     last_zero_day_m.metric(
         label='Last "Zero" Day',
         value=last_zero_day,
