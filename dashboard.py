@@ -1,5 +1,4 @@
 import sys
-import json
 import datetime
 import streamlit as st
 from selenium import webdriver
@@ -11,7 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import matplotlib.ticker as mtick
 import seaborn as sns
-import plotly.graph_objs as go
 
 
 @st.cache_data
@@ -154,7 +152,7 @@ def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
     last_zero_day = (
         zero_days_imputed_df.date[zero_days_imputed_df.cases_count == 0]
     ).max()
-    last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%d %b %Y")
+    last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%#d %b %Y")
     return last_zero_day_formatted
 
 
@@ -175,10 +173,7 @@ def main():
     covid_df = filter_df_by_lga(covid_df)
 
     # metrics
-    total_cases_metric, total_daily_cases_metric, last_zero_day_metric = st.columns(3)
-    total_cases = int(covid_df.cases_count.sum())
-    total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
-
+    total_cases_m, last_zero_day_m = st.columns(2)
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
     latest_day_filtered_df = covid_df[
         covid_df["date"] == day_before_date.strftime("%Y-%m-%d")
@@ -191,12 +186,12 @@ def main():
         ].cases_count.sum()
     )
 
-    total_daily_cases_metric.metric(
-        label="Daily Cases",
-        value=f"{latest_daily_cases:,}",
-        delta=f"{latest_daily_cases - two_days_before_cases:,}",
+    total_cases_m.metric(
+        label="Total Cases",
+        value=f"{int(covid_df.cases_count.sum()):,}",
+        delta=f"{latest_daily_cases - two_days_before_cases:,} daily",
         delta_color="inverse",
-        help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
+        help='Due to time-lag in reporting, cases are reported up to the "Last updated" date',
     )
 
     last_zero_day = find_last_zero_day(
@@ -204,8 +199,16 @@ def main():
         start_date=dataset_start_date,
         end_date=day_before_date,
     )
-
-    last_zero_day_metric.metric(label="Last Zero Day", value=last_zero_day)
+    last_zero_day_formatted = datetime.datetime.strptime(
+        last_zero_day, "%d %b %Y"
+    ).date()
+    days_since_last_zero_day = (last_zero_day_formatted - day_before_date).days
+    last_zero_day_m.metric(
+        label='Last "Zero" Day',
+        value=last_zero_day,
+        delta=f"{days_since_last_zero_day} days",
+        delta_color="off",
+    )
 
     # visualisations
     st.markdown("**Daily Cases**")
