@@ -142,20 +142,8 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return res_df[res_df.lga == lga_name]
 
 
-def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
-    # generate every day's date
-    d_range = pd.date_range(start_date, end_date, freq="d")
-    dates_df = pd.DataFrame(d_range, columns=["date"])
-
-    # merge every LGA
-    lgas_list = list(get_lgas())
-    lgas_list.remove("All")
-    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
-    lgas_df["key"] = 0
-    dates_df["key"] = 0
-
-    impute_df = dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
-
+def find_last_cont_zero_day(input_df: pd.DataFrame):
+    impute_df = generate_lga_date_combination_df(input_df)
     input_df.date = pd.to_datetime(input_df.date)
     zero_days_imputed_df = (
         impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
@@ -166,6 +154,25 @@ def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
     ).max()
     last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%#d %b %Y")
     return last_zero_day_formatted
+
+
+def generate_lga_date_combination_df(input_df: pd.DataFrame) -> pd.DataFrame:
+    # generate every day's date
+    dataset_start_date = get_start_date()
+    dataset_last_updated_date = get_last_updated_date()
+    day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
+
+    d_range = pd.date_range(dataset_start_date, day_before_date, freq="d")
+    dates_df = pd.DataFrame(d_range, columns=["date"])
+
+    # merge every LGA
+    lgas_list = list(get_lgas())
+    lgas_list.remove("All")
+    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
+    lgas_df["key"] = 0
+    dates_df["key"] = 0
+
+    return dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
 
 
 def main():
@@ -206,7 +213,7 @@ def main():
         help='Due to time-lag in reporting, cases are reported up to the "Last updated" date',
     )
 
-    last_zero_day = find_last_zero_day(
+    last_zero_day = find_last_cont_zero_day(
         covid_df,
         start_date=dataset_start_date,
         end_date=day_before_date,
