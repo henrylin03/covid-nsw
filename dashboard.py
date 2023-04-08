@@ -142,27 +142,54 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return res_df[res_df.lga == lga_name]
 
 
-def find_last_cont_zero_day(input_df: pd.DataFrame):
-    impute_df = generate_lga_date_combination_df(input_df)
-    input_df.date = pd.to_datetime(input_df.date)
-    zero_days_imputed_df = (
-        impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
-    )
+def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
+    res_dict = {}
 
-    last_zero_day = (
-        zero_days_imputed_df.date[zero_days_imputed_df.cases_count == 0]
-    ).max()
-    last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%#d %b %Y")
-    return last_zero_day_formatted
-
-
-def generate_lga_date_combination_df(input_df: pd.DataFrame) -> pd.DataFrame:
-    # generate every day's date
     dataset_start_date = get_start_date()
     dataset_last_updated_date = get_last_updated_date()
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
 
-    d_range = pd.date_range(dataset_start_date, day_before_date, freq="d")
+    impute_df = generate_lga_date_combination_df(dataset_start_date, day_before_date)
+    input_df.date = pd.to_datetime(input_df.date)
+    zero_days_imputed_by_lgas = (
+        impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
+    )
+    zero_days_imputed_all_lgas = (
+        zero_days_imputed_by_lgas.groupby("date").cases_count.sum().reset_index()
+    )
+
+    # calculate streaks
+    zero_days_imputed_all_lgas["zero_days_streak"] = zero_days_imputed_all_lgas.groupby(
+        (zero_days_imputed_all_lgas.cases_count != 0).cumsum()
+    ).cumcount()
+
+    res_dict["streak"] = (
+        zero_days_imputed_all_lgas.loc[
+            zero_days_imputed_all_lgas.date == pd.to_datetime(day_before_date),
+            "zero_days_streak",
+        ]
+        .iloc[0]
+        .astype(int)
+    )
+    if not res_dict["streak"]:
+        res_dict["latest_zero_day"] = zero_days_imputed_all_lgas[
+            zero_days_imputed_all_lgas.cases_count == 0
+        ].date.max()
+    else:
+        date_zero_day_streak_started = day_before_date - datetime.timedelta(
+            days=(int(res_dict["streak"]) - 1)
+        )
+        res_dict["latest_zero_day"] = date_zero_day_streak_started
+        res_dict["latest_zero_day_str_formatted"] = datetime.datetime.strftime(
+            date_zero_day_streak_started, "%#d %b %Y"
+        )
+
+    return res_dict
+
+
+def generate_lga_date_combination_df(start_date, end_date) -> pd.DataFrame:
+    # generate every day's date
+    d_range = pd.date_range(start_date, end_date, freq="d")
     dates_df = pd.DataFrame(d_range, columns=["date"])
 
     # merge every LGA
@@ -213,19 +240,12 @@ def main():
         help='Due to time-lag in reporting, cases are reported up to the "Last updated" date',
     )
 
-    last_zero_day = find_last_cont_zero_day(
-        covid_df,
-        start_date=dataset_start_date,
-        end_date=day_before_date,
-    )
-    last_zero_day_formatted = datetime.datetime.strptime(
-        last_zero_day, "%d %b %Y"
-    ).date()
-    days_since_last_zero_day = abs((day_before_date - last_zero_day_formatted).days)
+    zero_day_dict = find_zero_day_stats(covid_df)
+    current_zero_day_streak = zero_day_dict["streak"]
     last_zero_day_m.metric(
         label='Last "Zero" Day',
-        value=last_zero_day,
-        delta=f"{days_since_last_zero_day} days",
+        value=zero_day_dict["latest_zero_day_str_formatted"],
+        delta=f"{current_zero_day_streak} days streak",
         delta_color="off",
     )
 
