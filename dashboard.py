@@ -1,5 +1,4 @@
 import sys
-import json
 import datetime
 import streamlit as st
 from selenium import webdriver
@@ -11,7 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import matplotlib.ticker as mtick
 import seaborn as sns
-import plotly.graph_objs as go
 
 
 @st.cache_data
@@ -144,18 +142,68 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return res_df[res_df.lga == lga_name]
 
 
-def find_last_zero_day(input_df: pd.DataFrame, start_date, end_date):
-    d_range = pd.date_range(start_date, end_date, freq="d")
-    dates_df = pd.DataFrame(d_range)
-    dates_df.columns = ["date"]
+def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
+    res_dict = {}
 
+    dataset_start_date = get_start_date()
+    dataset_last_updated_date = get_last_updated_date()
+    day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
+
+    impute_df = generate_lga_date_combination_df(dataset_start_date, day_before_date)
     input_df.date = pd.to_datetime(input_df.date)
-    zero_days_imputed_df = dates_df.merge(input_df, how="left").fillna(0)
-    last_zero_day = (
-        zero_days_imputed_df.date[zero_days_imputed_df.cases_count == 0]
-    ).max()
-    last_zero_day_formatted = datetime.datetime.strftime(last_zero_day, "%d %b %Y")
-    return last_zero_day_formatted
+    zero_days_imputed_by_lgas = (
+        impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
+    )
+    zero_days_imputed_all_lgas = (
+        zero_days_imputed_by_lgas.groupby("date").cases_count.sum().reset_index()
+    )
+
+    res_dict["latest_zero_day"] = zero_days_imputed_all_lgas["date"][
+        zero_days_imputed_all_lgas.cases_count == 0
+    ].max()
+
+    # # calculate streaks
+    # zero_days_imputed_all_lgas["zero_days_streak"] = zero_days_imputed_all_lgas.groupby(
+    #     (zero_days_imputed_all_lgas.cases_count != 0).cumsum()
+    # ).cumcount()
+
+    # res_dict["streak"] = (
+    #     zero_days_imputed_all_lgas.loc[
+    #         zero_days_imputed_all_lgas.date == pd.to_datetime(day_before_date),
+    #         "zero_days_streak",
+    #     ]
+    #     .iloc[0]
+    #     .astype(int)
+    # )
+    # if not res_dict["streak"]:
+    #     res_dict["latest_zero_day"] = zero_days_imputed_all_lgas[
+    #         zero_days_imputed_all_lgas.cases_count == 0
+    #     ].date.max()
+    # else:
+    #     date_zero_day_streak_started = day_before_date - datetime.timedelta(
+    #         days=(int(res_dict["streak"]) - 1)
+    #     )
+    #     res_dict["start_of_latest_zero_day_streak"] = date_zero_day_streak_started
+    res_dict["days_since_last_zero"] = (
+        res_dict["latest_zero_day"].date() - day_before_date
+    ).days
+
+    return res_dict
+
+
+def generate_lga_date_combination_df(start_date, end_date) -> pd.DataFrame:
+    # generate every day's date
+    d_range = pd.date_range(start_date, end_date, freq="d")
+    dates_df = pd.DataFrame(d_range, columns=["date"])
+
+    # merge every LGA
+    lgas_list = list(get_lgas())
+    lgas_list.remove("All")
+    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
+    lgas_df["key"] = 0
+    dates_df["key"] = 0
+
+    return dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
 
 
 def main():
@@ -175,10 +223,7 @@ def main():
     covid_df = filter_df_by_lga(covid_df)
 
     # metrics
-    total_cases_metric, total_daily_cases_metric, last_zero_day_metric = st.columns(3)
-    total_cases = int(covid_df.cases_count.sum())
-    total_cases_metric.metric(label="Total Cases", value=f"{total_cases:,}")
-
+    total_cases_m, last_zero_day_m = st.columns(2)
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
     latest_day_filtered_df = covid_df[
         covid_df["date"] == day_before_date.strftime("%Y-%m-%d")
@@ -191,21 +236,21 @@ def main():
         ].cases_count.sum()
     )
 
-    total_daily_cases_metric.metric(
-        label="Daily Cases",
-        value=f"{latest_daily_cases:,}",
-        delta=f"{latest_daily_cases - two_days_before_cases:,}",
+    total_cases_m.metric(
+        label="Total Cases",
+        value=f"{int(covid_df.cases_count.sum()):,}",
+        delta=f"{latest_daily_cases - two_days_before_cases:,} daily",
         delta_color="inverse",
-        help='Due to time-lag in reporting, cases are reported up to and including the day before the "Last updated" date',
+        help='Due to time-lag in reporting, cases are reported up to the "Last updated" date',
     )
 
-    last_zero_day = find_last_zero_day(
-        covid_df,
-        start_date=dataset_start_date,
-        end_date=day_before_date,
+    zero_day_dict = find_zero_day_stats(covid_df)
+    last_zero_day_m.metric(
+        label='Last "Zero" Day',
+        value=datetime.datetime.strftime(zero_day_dict["latest_zero_day"], "%#d %b %Y"),
+        delta=f"{zero_day_dict['days_since_last_zero']} days since",
+        delta_color="off",
     )
-
-    last_zero_day_metric.metric(label="Last Zero Day", value=last_zero_day)
 
     # visualisations
     st.markdown("**Daily Cases**")
