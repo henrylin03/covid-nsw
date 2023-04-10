@@ -158,31 +158,35 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
         zero_days_imputed_by_lgas.groupby("date").cases_count.sum().reset_index()
     )
 
-    # calculate streaks
-    zero_days_imputed_all_lgas["zero_days_streak"] = zero_days_imputed_all_lgas.groupby(
-        (zero_days_imputed_all_lgas.cases_count != 0).cumsum()
-    ).cumcount()
+    res_dict["latest_zero_day"] = zero_days_imputed_all_lgas["date"][
+        zero_days_imputed_all_lgas.cases_count == 0
+    ].max()
 
-    res_dict["streak"] = (
-        zero_days_imputed_all_lgas.loc[
-            zero_days_imputed_all_lgas.date == pd.to_datetime(day_before_date),
-            "zero_days_streak",
-        ]
-        .iloc[0]
-        .astype(int)
-    )
-    if not res_dict["streak"]:
-        res_dict["latest_zero_day"] = zero_days_imputed_all_lgas[
-            zero_days_imputed_all_lgas.cases_count == 0
-        ].date.max()
-    else:
-        date_zero_day_streak_started = day_before_date - datetime.timedelta(
-            days=(int(res_dict["streak"]) - 1)
-        )
-        res_dict["latest_zero_day"] = date_zero_day_streak_started
-        res_dict["latest_zero_day_str_formatted"] = datetime.datetime.strftime(
-            date_zero_day_streak_started, "%#d %b %Y"
-        )
+    # # calculate streaks
+    # zero_days_imputed_all_lgas["zero_days_streak"] = zero_days_imputed_all_lgas.groupby(
+    #     (zero_days_imputed_all_lgas.cases_count != 0).cumsum()
+    # ).cumcount()
+
+    # res_dict["streak"] = (
+    #     zero_days_imputed_all_lgas.loc[
+    #         zero_days_imputed_all_lgas.date == pd.to_datetime(day_before_date),
+    #         "zero_days_streak",
+    #     ]
+    #     .iloc[0]
+    #     .astype(int)
+    # )
+    # if not res_dict["streak"]:
+    #     res_dict["latest_zero_day"] = zero_days_imputed_all_lgas[
+    #         zero_days_imputed_all_lgas.cases_count == 0
+    #     ].date.max()
+    # else:
+    #     date_zero_day_streak_started = day_before_date - datetime.timedelta(
+    #         days=(int(res_dict["streak"]) - 1)
+    #     )
+    #     res_dict["start_of_latest_zero_day_streak"] = date_zero_day_streak_started
+    res_dict["days_since_last_zero"] = (
+        res_dict["latest_zero_day"].date() - day_before_date
+    ).days
 
     return res_dict
 
@@ -241,11 +245,10 @@ def main():
     )
 
     zero_day_dict = find_zero_day_stats(covid_df)
-    current_zero_day_streak = zero_day_dict["streak"]
     last_zero_day_m.metric(
         label='Last "Zero" Day',
-        value=zero_day_dict["latest_zero_day_str_formatted"],
-        delta=f"{current_zero_day_streak} days streak",
+        value=datetime.datetime.strftime(zero_day_dict["latest_zero_day"], "%#d %b %Y"),
+        delta=f"{zero_day_dict['days_since_last_zero']} days since",
         delta_color="off",
     )
 
