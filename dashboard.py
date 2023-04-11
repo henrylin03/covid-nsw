@@ -73,19 +73,26 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
     daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
 
-    sns.set_style("dark", {"axes.facecolor": "0.95"})
+    sns.set_style("dark", {"axes.facecolor": "0.994"})
     sns.set_palette("dark")
 
     fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
-    sns.lineplot(x="date", y="cases_count", data=daily_cases, ax=ax, linewidth=0.8)
-    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, alpha=0.2)
+    sns.lineplot(
+        x="date",
+        y="cases_count",
+        data=daily_cases,
+        ax=ax,
+        linewidth=0.65,
+        color="#1f77b4",
+    )
+    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, color="#c9e5ff")
 
     ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
     ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
     ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
     ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
     plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
-    ax.tick_params(axis="x", which="minor", labelsize=5)
+    ax.tick_params(axis="x", which="minor", labelsize=4.5)
 
     y_axis_fmt = "{x:,.0f}"
     y_ticks = mtick.StrMethodFormatter(y_axis_fmt)
@@ -106,10 +113,10 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         y="lga",
         data=df.head(10),
         orient="h",
-        saturation=10,
-        color="#ef5675",
-        edgecolor="black",
-        linewidth=0.7,
+        saturation=1,
+        color="#c9e5ff",
+        edgecolor="#1f77b4",
+        linewidth=0.8,
         ax=ax,
     )
     ax.set_xlabel("Total Cases ('000s)", fontsize=5)
