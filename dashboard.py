@@ -69,65 +69,6 @@ def get_lgas() -> tuple:
     return tuple(lgas_filtered_sorted)
 
 
-def plot_daily_cases_area_chart(input_df: pd.DataFrame):
-    daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
-    daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
-
-    sns.set_style("dark", {"axes.facecolor": "0.994"})
-    sns.set_palette("dark")
-
-    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
-    sns.lineplot(
-        x="date",
-        y="cases_count",
-        data=daily_cases,
-        ax=ax,
-        linewidth=0.65,
-        color="#1f77b4",
-    )
-    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, color="#c9e5ff")
-
-    ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
-    ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
-    ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
-    ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
-    plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
-    ax.tick_params(axis="x", which="minor", labelsize=4.5)
-
-    y_axis_fmt = "{x:,.0f}"
-    y_ticks = mtick.StrMethodFormatter(y_axis_fmt)
-    ax.yaxis.set_major_formatter(y_ticks)
-    ax.tick_params(axis="both", which="major", labelsize=6)
-
-    ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
-    ax.set_xlabel(None)
-
-    return fig
-
-
-def plot_total_cases_by_lga(input_df: pd.DataFrame):
-    df = total_cases_by_lga(input_df)
-    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
-    sns.barplot(
-        x="cases_count",
-        y="lga",
-        data=df.head(10),
-        orient="h",
-        saturation=1,
-        color="#c9e5ff",
-        edgecolor="#1f77b4",
-        linewidth=0.8,
-        ax=ax,
-    )
-    ax.set_xlabel("Total Cases ('000s)", fontsize=5)
-    ax.set_ylabel("LGA", fontsize=5)
-    ax.tick_params(axis="both", labelsize=5)
-    ax.xaxis.set_major_formatter(
-        mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x / 1000))
-    )
-    return fig
-
-
 def total_cases_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     totalled_df = (
         input_df.groupby("lga")
@@ -216,6 +157,65 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
     return res_dict
 
 
+def plot_daily_cases_area_chart(input_df: pd.DataFrame):
+    daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
+    daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
+
+    sns.set_style("dark", {"axes.facecolor": "0.994"})
+    sns.set_palette("dark")
+
+    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
+    sns.lineplot(
+        x="date",
+        y="cases_count",
+        data=daily_cases,
+        ax=ax,
+        linewidth=0.65,
+        color="#1f77b4",
+    )
+    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, color="#c9e5ff")
+
+    ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
+    ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
+    ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
+    ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
+    plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
+    ax.tick_params(axis="x", which="minor", labelsize=4.5)
+
+    y_axis_fmt = "{x:,.0f}"
+    y_ticks = mtick.StrMethodFormatter(y_axis_fmt)
+    ax.yaxis.set_major_formatter(y_ticks)
+    ax.tick_params(axis="both", which="major", labelsize=6)
+
+    ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
+    ax.set_xlabel(None)
+
+    return fig
+
+
+def plot_total_cases_by_lga(input_df: pd.DataFrame):
+    df = total_cases_by_lga(input_df)
+    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
+    sns.barplot(
+        x="cases_count",
+        y="lga",
+        data=df.head(10),
+        orient="h",
+        saturation=1,
+        color="#c9e5ff",
+        edgecolor="#1f77b4",
+        linewidth=0.8,
+        ax=ax,
+    )
+    ax.set_xlabel("Total Cases ('000s)", fontsize=5)
+    ax.set_ylabel("LGA", fontsize=5)
+    ax.tick_params(axis="both", labelsize=5)
+    ax.xaxis.set_major_formatter(
+        mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x / 1000))
+    )
+    return fig
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":chart_with_upwards_trend:", layout="wide"
@@ -232,7 +232,7 @@ def main():
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
     st.sidebar.header("Filters")
-    covid_df = filter_df_by_lga(zero_day_imputed_df)
+    filtered_df = filter_df_by_lga(zero_day_imputed_df)
 
     # metrics
     total_cases_m, last_zero_day_m = st.columns(2)
