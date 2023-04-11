@@ -149,18 +149,34 @@ def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return res_df[res_df.lga == lga_name]
 
 
-def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
-    res_dict = {}
-
+def impute_zero_days_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
+    # generate every day's date
     dataset_start_date = get_start_date()
     dataset_last_updated_date = get_last_updated_date()
     day_before_date = dataset_last_updated_date - datetime.timedelta(days=1)
+    d_range = pd.date_range(dataset_start_date, day_before_date, freq="d")
+    dates_df = pd.DataFrame(d_range, columns=["date"])
 
-    impute_df = generate_lga_date_combination_df(dataset_start_date, day_before_date)
+    # merge every LGA
+    lgas_list = list(get_lgas())
+    lgas_list.remove("All")
+    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
+    lgas_df["key"] = 0
+    dates_df["key"] = 0
+
+    df_for_imputing = dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
+
     input_df.date = pd.to_datetime(input_df.date)
     zero_days_imputed_by_lgas = (
-        impute_df.merge(input_df, how="left").fillna(0).sort_values("date")
+        df_for_imputing.merge(input_df, how="left").fillna(0).sort_values("date")
     )
+    return zero_days_imputed_by_lgas
+
+
+def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
+    res_dict = {}
+
+    zero_days_imputed_by_lgas = impute_zero_days_by_lga(input_df)
     zero_days_imputed_all_lgas = (
         zero_days_imputed_by_lgas.groupby("date").cases_count.sum().reset_index()
     )
@@ -191,26 +207,13 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
     #         days=(int(res_dict["streak"]) - 1)
     #     )
     #     res_dict["start_of_latest_zero_day_streak"] = date_zero_day_streak_started
+
+    latest_date = zero_days_imputed_all_lgas.date.max()
     res_dict["days_since_last_zero"] = (
-        res_dict["latest_zero_day"].date() - day_before_date
+        res_dict["latest_zero_day"].date() - latest_date.date()
     ).days
 
     return res_dict
-
-
-def generate_lga_date_combination_df(start_date, end_date) -> pd.DataFrame:
-    # generate every day's date
-    d_range = pd.date_range(start_date, end_date, freq="d")
-    dates_df = pd.DataFrame(d_range, columns=["date"])
-
-    # merge every LGA
-    lgas_list = list(get_lgas())
-    lgas_list.remove("All")
-    lgas_df = pd.DataFrame(lgas_list, columns=["lga"])
-    lgas_df["key"] = 0
-    dates_df["key"] = 0
-
-    return dates_df.merge(lgas_df, on="key", how="outer").drop("key", axis=1)
 
 
 def main():
@@ -223,11 +226,13 @@ def main():
     dataset_last_updated_date = get_last_updated_date()
     dataset_last_updated_date_formatted = dataset_last_updated_date.strftime("%d %b %Y")
 
+    zero_day_imputed_df = impute_zero_days_by_lga(covid_df)
+
     st.title(":chart_with_upwards_trend: COVID in NSW")
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
     st.sidebar.header("Filters")
-    covid_df = filter_df_by_lga(covid_df)
+    covid_df = filter_df_by_lga(zero_day_imputed_df)
 
     # metrics
     total_cases_m, last_zero_day_m = st.columns(2)
@@ -261,11 +266,11 @@ def main():
 
     # visualisations
     st.markdown("**Daily Cases**")
-    daily_cases_area_chart = plot_daily_cases_area_chart(covid_df)
+    daily_cases_area_chart = plot_daily_cases_area_chart(zero_day_imputed_df)
     st.pyplot(daily_cases_area_chart)
 
     st.markdown("**Top 10 LGAs by Total Cases**")
-    cases_by_lga_barplot = plot_total_cases_by_lga(covid_df)
+    cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
     st.pyplot(cases_by_lga_barplot)
 
     # dataframe
