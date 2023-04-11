@@ -1,6 +1,6 @@
-# Analysis of COVID Cases in NSW using SQL & Python
+# Analysis of COVID Cases in NSW
 
-This is a personal project aimed at analysing reported COVID cases in New South Wales (NSW), Australia. The project involves data analysis, data pipeline creation, and data visualisation using a combination of SQL and Python.
+This is a personal project aimed at analysing reported COVID cases in New South Wales (NSW), Australia. The project involves data analysis, data pipeline creation, and data visualisation using a combination of **SQL** and **Python**.
 
 The main goal of this project was to analyse COVID cases in NSW and gain insights into patterns and trends in its spread. The project involved cleaning and processing the data, analysing the data using SQL and Python, and visualising the data using various graphs and charts.
 
