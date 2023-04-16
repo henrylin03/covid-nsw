@@ -191,13 +191,15 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
     ax.set_xlabel(None)
 
-    # COVID waves are subject to debate, but I based these off Wikipedia's Australian waves: https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Australia
-    # this is substantiated by the 2021 paper "Bondi and beyond. Lessons from three waves of COVID-19 from 2020" by Capon et al: https://www.phrp.com.au/issues/september-2021-volume-31-issue-3/bondi-and-beyond-lessons-from-three-waves-of-covid-19/
+    # per Australian Bureau of Statistics (ABS), when a variant circulates predominantly for a period of time in a community, this is a "wave": https://www.abs.gov.au/articles/covid-19-mortality-wave
+    # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources.
     COVID_WAVES = {
-        "First Wave": ("2020-03-10", "2020-06-06"),
-        "Second Wave": ("2020-07-15", "2020-09-30"),
-        "Third Wave": ("2020-12-15", "2021-02-28"),
+        "Wave 1": ("2020-03-01", "2020-05-01"),
         "Delta Wave": ("2021-06-15", "2021-11-30"),
+        "Omicron Wave": (
+            "2021-11-28",  # first date that Omicron strain detected from returning travellers
+            "2022-09-30",
+        ),  # AFR reported that Australia's summer omicron wave reached its end in mid-Feb 2023: https://www.afr.com/politics/federal/the-omicron-wave-is-finished-the-next-one-is-around-the-corner-20230217-p5clfj
     }
     for wave_name, dates in COVID_WAVES.items():
         start_date, end_date = pd.to_datetime(dates, format="%Y-%m-%d")
