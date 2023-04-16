@@ -126,7 +126,7 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
         zero_days_imputed_all_lgas.cases_count == 0
     ].max()
 
-    # # calculate streaks
+    ## calculate streaks
     # zero_days_imputed_all_lgas["zero_days_streak"] = zero_days_imputed_all_lgas.groupby(
     #     (zero_days_imputed_all_lgas.cases_count != 0).cumsum()
     # ).cumcount()
@@ -151,7 +151,7 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
 
     latest_date = zero_days_imputed_all_lgas.date.max()
     res_dict["days_since_last_zero"] = (
-        res_dict["latest_zero_day"].date() - latest_date.date()
+        latest_date.date() - res_dict["latest_zero_day"].date()
     ).days
 
     return res_dict
