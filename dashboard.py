@@ -214,7 +214,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
             ha="center",
             va="center",
             fontsize=4.2,
-            color=sns.dark_palette(colour, reverse=True)[2],
+            color=sns.dark_palette(colour, reverse=True)[-3],
             # bbox=dict(facecolor=colour, edgecolor=colour, alpha=0.2),
         )
     return fig
