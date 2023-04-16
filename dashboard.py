@@ -198,7 +198,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
 
 def label_areaplot_with_waves(axes_obj):
     # per Australian Bureau of Statistics (ABS), when a variant circulates predominantly for a period of time in a community, this is a "wave": https://www.abs.gov.au/articles/covid-19-mortality-wave
-    # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources. Vic's wave is excluded.
+    # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources. Vic's wave (Jun 2020 to Oct 2020 approx) is excluded.
     COVID_WAVES = {
         "Wave 1": ("2020-03-01", "2020-05-01"),
         "Delta Wave": ("2021-06-15", "2021-11-30"),
