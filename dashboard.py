@@ -203,7 +203,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
         wave_end_date = pd.to_datetime(COVID_WAVES[wave_name][1], format="%Y-%m-%d")
         midway_date = wave_start_date + (wave_end_date - wave_start_date) / 2
 
-        ax.axvspan(wave_start_date, wave_end_date, alpha=0.1, color=colour)
+        ax.axvspan(wave_start_date, wave_end_date, alpha=0.2, color=colour)
         label_x = midway_date
         label_y = 3500
         ax.annotate(
