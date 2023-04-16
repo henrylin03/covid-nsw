@@ -190,6 +190,13 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
     ax.set_xlabel(None)
 
+    COVID_WAVES = {
+        "First Wave": [daily_cases.date.min(), "2020-06-01"],
+        "Second Wave": ["2020-07-15", "2020-09-30"],
+        "Third Wave": ["2020-12-15", "2021-02-28"],
+        "Delta Wave": ["2021-06-15", "2021-11-30"],
+    }
+
     return fig
 
 
