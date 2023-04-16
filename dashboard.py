@@ -191,19 +191,19 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
     ax.set_xlabel(None)
 
+    # COVID waves are subject to debate, but I based these off Wikipedia's Australian waves: https://en.wikipedia.org/wiki/COVID-19_pandemic_in_Australia
+    # this is substantiated by the 2021 paper "Bondi and beyond. Lessons from three waves of COVID-19 from 2020" by Capon et al: https://www.phrp.com.au/issues/september-2021-volume-31-issue-3/bondi-and-beyond-lessons-from-three-waves-of-covid-19/
     COVID_WAVES = {
-        "First Wave": ["2020-01-26", "2020-06-01"],
-        "Second Wave": ["2020-07-15", "2020-09-30"],
-        "Third Wave": ["2020-12-15", "2021-02-28"],
-        "Delta Wave": ["2021-06-15", "2021-11-30"],
+        "First Wave": ("2020-03-10", "2020-06-06"),
+        "Second Wave": ("2020-07-15", "2020-09-30"),
+        "Third Wave": ("2020-12-15", "2021-02-28"),
+        "Delta Wave": ("2021-06-15", "2021-11-30"),
     }
-    for i, wave_name in enumerate(COVID_WAVES):
-        colour = palette[i % len(palette)]
-        wave_start_date = pd.to_datetime(COVID_WAVES[wave_name][0], format="%Y-%m-%d")
-        wave_end_date = pd.to_datetime(COVID_WAVES[wave_name][1], format="%Y-%m-%d")
-        midway_date = wave_start_date + (wave_end_date - wave_start_date) / 2
+    for wave_name, dates in COVID_WAVES.items():
+        start_date, end_date = pd.to_datetime(dates, format="%Y-%m-%d")
+        midway_date = start_date + (end_date - start_date) / 2
 
-        ax.axvspan(wave_start_date, wave_end_date, alpha=0.2, color=colour)
+        ax.axvspan(start_date, end_date, alpha=0.2, color="#9edae5")  # light blue-green
         label_x = midway_date
         label_y = 3500
         ax.annotate(
@@ -214,7 +214,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
             ha="center",
             va="center",
             fontsize=4.2,
-            color=sns.dark_palette(colour, reverse=True)[-3],
+            color="#1088a8"  # dark blue-green
             # bbox=dict(facecolor=colour, edgecolor=colour, alpha=0.2),
         )
     return fig
