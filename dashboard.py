@@ -191,8 +191,14 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.set_ylabel("Reported Cases", fontsize=6, labelpad=6)
     ax.set_xlabel(None)
 
+    label_areaplot_with_waves(ax)
+
+    return fig
+
+
+def label_areaplot_with_waves(axes_obj):
     # per Australian Bureau of Statistics (ABS), when a variant circulates predominantly for a period of time in a community, this is a "wave": https://www.abs.gov.au/articles/covid-19-mortality-wave
-    # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources.
+    # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources. Vic's wave is excluded.
     COVID_WAVES = {
         "Wave 1": ("2020-03-01", "2020-05-01"),
         "Delta Wave": ("2021-06-15", "2021-11-30"),
@@ -205,10 +211,12 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
         start_date, end_date = pd.to_datetime(dates, format="%Y-%m-%d")
         midway_date = start_date + (end_date - start_date) / 2
 
-        ax.axvspan(start_date, end_date, alpha=0.2, color="#9edae5")  # light blue-green
+        axes_obj.axvspan(
+            start_date, end_date, alpha=0.2, color="#9edae5"
+        )  # light blue-green
         label_x = midway_date
         label_y = 3500
-        ax.annotate(
+        axes_obj.annotate(
             wave_name,
             xy=(label_x, label_y),
             xytext=(0, 0),
@@ -219,7 +227,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
             color="#1088a8"  # dark blue-green
             # bbox=dict(facecolor=colour, edgecolor=colour, alpha=0.2),
         )
-    return fig
+    return
 
 
 def plot_total_cases_by_lga(input_df: pd.DataFrame):
