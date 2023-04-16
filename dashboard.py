@@ -158,12 +158,11 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
 
 
 def plot_daily_cases_area_chart(input_df: pd.DataFrame):
+    sns.set_style("dark", {"axes.facecolor": "0.994"})
+    palette = sns.color_palette("pastel")
+
     daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
     daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
-
-    sns.set_style("dark", {"axes.facecolor": "0.994"})
-    sns.set_palette("dark")
-
     fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
     sns.lineplot(
         x="date",
@@ -173,7 +172,9 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
         linewidth=0.65,
         color="#1f77b4",
     )
-    plt.fill_between(x=daily_cases.date, y1=daily_cases.cases_count, color="#c9e5ff")
+    plt.fill_between(
+        x=daily_cases.date, y1=daily_cases.cases_count, color=palette[0], alpha=0.5
+    )
 
     ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
     ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
@@ -191,12 +192,31 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
     ax.set_xlabel(None)
 
     COVID_WAVES = {
-        "First Wave": [daily_cases.date.min(), "2020-06-01"],
+        "First Wave": ["2020-01-26", "2020-06-01"],
         "Second Wave": ["2020-07-15", "2020-09-30"],
         "Third Wave": ["2020-12-15", "2021-02-28"],
         "Delta Wave": ["2021-06-15", "2021-11-30"],
     }
+    for i, wave_name in enumerate(COVID_WAVES):
+        colour = palette[i % len(palette)]
+        wave_start_date = pd.to_datetime(COVID_WAVES[wave_name][0], format="%Y-%m-%d")
+        wave_end_date = pd.to_datetime(COVID_WAVES[wave_name][1], format="%Y-%m-%d")
+        midway_date = wave_start_date + (wave_end_date - wave_start_date) / 2
 
+        ax.axvspan(wave_start_date, wave_end_date, alpha=0.1, color=colour)
+        label_x = midway_date
+        label_y = 3500
+        ax.annotate(
+            wave_name,
+            xy=(label_x, label_y),
+            xytext=(0, 0),
+            textcoords="offset points",
+            ha="center",
+            va="center",
+            fontsize=4.2,
+            color=sns.dark_palette(colour, reverse=True)[2],
+            # bbox=dict(facecolor=colour, edgecolor=colour, alpha=0.2),
+        )
     return fig
 
 
@@ -211,7 +231,7 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         saturation=1,
         color="#c9e5ff",
         edgecolor="#1f77b4",
-        linewidth=0.8,
+        linewidth=0.82,
         ax=ax,
     )
     ax.set_xlabel("Total Cases ('000s)", fontsize=5)
