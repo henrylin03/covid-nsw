@@ -3,7 +3,7 @@
 In this project, I explore and visualise the impact of the pandemic in New South Wales (NSW), Australia. Through this project, I showcase my skills in data analysis, including SQL (SQLite3), Pandas, Seaborn, Matplotlib and other libraries used to extract and communicate insights.
 
 <p align="center">
-    <img src="./img/nsw_choropleth.png" alt="", height="580">
+    <img src="./img/nsw_choropleth.png" alt="">
 </p>
 
 ## Project Overview
