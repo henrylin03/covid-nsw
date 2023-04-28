@@ -382,8 +382,9 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**Total Cases by LGA**")
-        region_select = st.selectbox(
-            "Please select a region", ["NSW", "Greater Sydney"]
+        region_select = st.radio(
+            "Region",
+            options=("NSW", "Greater Sydney"),
         )
         greater_syd_selected = region_select == "Greater Sydney"
         choropleth = plot_choropleth(covid_df, greater_syd_only=greater_syd_selected)
