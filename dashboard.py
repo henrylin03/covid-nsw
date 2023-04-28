@@ -297,8 +297,6 @@ def main():
     last_zero_day_m.metric(
         label='Last "Zero" Day',
         value=datetime.datetime.strftime(zero_day_dict["latest_zero_day"], "%#d %b %Y"),
-        delta=f"{zero_day_dict['days_since_last_zero']} days since",
-        delta_color="off",
     )
 
     # visualisations
