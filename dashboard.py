@@ -244,7 +244,7 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         saturation=1,
         color="#8B008B",
         edgecolor="white",
-        linewidth=1.5,
+        linewidth=3.8,
         ax=ax,
         alpha=0.8,
     )
