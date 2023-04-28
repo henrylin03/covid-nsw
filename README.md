@@ -1,23 +1,44 @@
-# covid-nsw
+# COVID-19 Data Analysis in NSW
 
-In this project, I analyse reported COVID-19 case numbers in New South Wales (NSW), Australia.
+In this project, I explore and visualise the impact of the pandemic in New South Wales (NSW), Australia. Through this project, I showcase my skills in data analysis, including SQL (SQLite3), Pandas, Seaborn, Matplotlib and other libraries used to extract and communicate insights.
 
 <p align="center">
-    <img src="https://www.nsw.gov.au/sites/default/files/2020-06/covid-safe-logo.png" alt="" width="275">
+    <img src="https://www.nsw.gov.au/sites/default/files/2020-06/covid-safe-logo.png" alt="" height="220">
 </p>
 
-## Description
+## Project Overview
 
-In the `covid-nsw.ipynb` Jupyter Notebook, I provide analysis of reported COVID cases in NSW in a Python environment:
+In this project, I obtained reported COVID-19 cases from the [NSW Health website](https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q=), and performed the following tasks:
 
-- For cleaning, querying and transforming data, I used:
+- **Data Pipeline Building**: I built a data pipeline that automates the entire process of fetching, cleaning, and analysing the data, using Python and SQLite3.
+- **Data Cleaning and Preparation**: I cleaned and transformed the raw data to remove duplicates, missing values, and other inconsistencies that could affect the analysis.
+- **Data Exploration and Analysis**: Using Pandas, I explored the data to identify trends, patterns, and relationships between different variables such as the number of cases over time and by location and variants/waves, as well as days without any reported cases ("zero days").
+- **Data Visualisation**: I created several visualisations using Seaborn and Matplotlib, including choropleth maps, line charts, donut charts, and bar charts to communicate the key findings and insights from the data in a clear and concise way.
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Pandas_logo.svg/2560px-Pandas_logo.svg.png" alt="" width="250" align="center"> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/SQLite370.svg/1280px-SQLite370.png" alt="" width="250" align="center">
+## Technologies Used
 
-- For visualising data, I primarily used:
+- SQL (SQLite3): for data cleaning, preparation, and manipulation
+- Pandas: for data cleaning, preparation, and analysis
+- Seaborn and Matplotlib: for data visualisation and exploration
+- Wikipedia: for downloading tables from Wikipedia pages
 
-  <img src="https://matplotlib.org/stable/_images/sphx_glr_logos2_003.png" alt="" width="250" align="center"> <img src="https://miro.medium.com/max/819/1*5VKgpRUCInBKmWBXFvSvvA.png" alt="" width="225" align="center">
+## How to Use the Project
 
-## Feedback
+To replicate my analysis, follow these steps:
 
-Thank you for joining me on my journey to learn coding and data analysis! If you have any feedback, please let me know via a [GitHub Issue](https://github.com/henrylin03/COVID-NSW/issues).
+1. Clone this repository to your local machine:
+
+   ```bash
+   git clone https://github.com/your_username/covid-nsw.git
+   ```
+
+2. Open and run the `analysis.ipynb` Jupyter notebook to see the results of the analysis:
+   ```bash
+   jupyter notebook
+   ```
+
+## Conclusion
+
+Through this project, I sharpened my skills in data pipeline building, data cleaning, analysis and visualisation using a variety of tools and libraries.
+
+Feel free to reach out to me if you have any questions or feedback. Thank you for your interest!
