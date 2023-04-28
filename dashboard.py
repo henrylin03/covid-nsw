@@ -292,6 +292,26 @@ def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
         greater_syd_lgas_df = extract_greater_syd_lgas()
         merged = merged[merged.abb_name.isin(set(greater_syd_lgas_df.lga))]
 
+        # label lgas
+        top_lgas = merged.nlargest(5, "cases_count").abb_name.to_list()
+        for l in top_lgas:
+            label = f"{top_lgas.index(l) + 1}): {l}"
+
+            df_filtered_by_lga = merged[merged.abb_name == l]
+            centroid = df_filtered_by_lga.geometry.centroid.values[0]
+            x, y = centroid.x, centroid.y
+
+            ax.annotate(
+                text=label,
+                xy=(x - 0.002, y + 1),
+                color="white",
+                path_effects=[pe.withStroke(linewidth=1, foreground="black")],
+                fontsize=5.6,
+                fontweight="bold",
+                ha="left",
+                va="center",
+            )
+
     merged.plot(column="cases_count", cmap="PuRd", legend=True, ax=ax)
 
     formatter = mtick.StrMethodFormatter("{x:,.0f}")
