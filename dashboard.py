@@ -242,16 +242,22 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         data=df.head(10),
         orient="h",
         saturation=1,
-        color="#8B008B",
-        edgecolor="white",
-        linewidth=3.8,
+        color="#8C3F8F",
+        linewidth=1,
         ax=ax,
-        alpha=0.8,
     )
-    ax.set_facecolor("#F5F5F5")
+    # ax.set_facecolor("#555555")
+    # fig.set_facecolor("#555555")
+
+    for k in ax.spines.keys():
+        try:
+            ax.spines[k].set_visible(False)
+        except AttributeError:
+            pass
+
     ax.set_xlabel("Total Cases", fontsize=8)
     ax.set_ylabel("LGA", fontsize=8)
-    ax.tick_params(axis="both", labelsize=8)
+    ax.tick_params(axis="both", labelsize=10)
     ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x)))
     return fig
 
@@ -280,7 +286,7 @@ def plot_choropleth(input_df: pd.DataFrame):
     merged = geodf.merge(total_cases_by_lga_df)
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.axis("off")
-    fig.set_facecolor("#999999")
+    fig.set_facecolor("#777777")
     merged.plot(column="cases_count", cmap="PuRd", legend=True, ax=ax)
 
     formatter = mtick.StrMethodFormatter("{x:,.0f}")
