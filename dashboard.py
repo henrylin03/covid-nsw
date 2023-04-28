@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import matplotlib.ticker as mtick
@@ -253,6 +254,41 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
+def plot_choropleth(input_df: pd.DataFrame):
+    SHP_PATH = "./data/nsw-lga-boundaries/nsw-lga-boundaries.shp"  # https://data.peclet.com.au/explore/dataset/nsw-lga-boundaries/export/?location=6,-30.58118,150.15015&basemap=jawg.streets
+    geodf = gpd.read_file(SHP_PATH)
+    geodf = geodf.to_crs(epsg=28355)
+
+    # manually map lga names
+    geo_to_covid_mapping_dict = {
+        "Greater Hume": "Greater Hume Shire",
+        "Nambucca Valley": "Nambucca",
+        "Sutherland": "Sutherland Shire",
+        "The Hills": "The Hills Shire",
+        "Upper Hunter": "Upper Hunter Shire",
+        "Upper Lachlan": "Upper Lachlan Shire",
+        "Warrumbungle": "Warrumbungle Shire",
+        "Unincorporated - Far West Area": "Unincorporated NSW",
+    }
+    geodf.abb_name = geodf.abb_name.replace(geo_to_covid_mapping_dict)
+
+    total_cases_by_lga_df = total_cases_by_lga(input_df).rename(
+        columns={"lga": "abb_name"}
+    )
+    merged = geodf.merge(total_cases_by_lga_df)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.axis("off")
+    fig.set_facecolor("#555555")
+    merged.plot(column="cases_count", cmap="PuRd", legend=True, ax=ax)
+
+    formatter = mtick.StrMethodFormatter("{x:,.0f}")
+    cax = fig.axes[-1]
+    cax.yaxis.set_major_formatter(formatter)
+    cax.tick_params(labelcolor="white")
+
+    return fig
+
+
 def main():
     st.set_page_config(
         page_title="COVID in NSW", page_icon=":chart_with_upwards_trend:", layout="wide"
@@ -304,9 +340,16 @@ def main():
     daily_cases_area_chart = plot_daily_cases_area_chart(zero_day_imputed_df)
     st.pyplot(daily_cases_area_chart)
 
-    st.markdown("**Top 10 LGAs by Total Cases**")
-    cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
-    st.pyplot(cases_by_lga_barplot)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Top 10 LGAs by Total Cases**")
+        cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
+        st.pyplot(cases_by_lga_barplot)
+
+    with col2:
+        st.markdown("**Total Cases by LGA**")
+        choropleth = plot_choropleth(covid_df)
+        st.pyplot(choropleth)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
