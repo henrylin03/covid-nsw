@@ -1,6 +1,7 @@
 import sys
 import datetime
 import streamlit as st
+import wikipedia
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -8,6 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib.patheffects as pe
 import matplotlib.dates as md
 import matplotlib.ticker as mtick
 import seaborn as sns
@@ -260,7 +262,7 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
-def plot_choropleth(input_df: pd.DataFrame):
+def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
     SHP_PATH = "./data/nsw-lga-boundaries/nsw-lga-boundaries.shp"  # https://data.peclet.com.au/explore/dataset/nsw-lga-boundaries/export/?location=6,-30.58118,150.15015&basemap=jawg.streets
     geodf = gpd.read_file(SHP_PATH)
     geodf = geodf.to_crs(epsg=28355)
@@ -285,6 +287,11 @@ def plot_choropleth(input_df: pd.DataFrame):
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.axis("off")
     fig.set_facecolor("#777777")
+
+    if greater_syd_only:
+        greater_syd_lgas_df = extract_greater_syd_lgas()
+        merged = merged[merged.abb_name.isin(set(greater_syd_lgas_df.lga))]
+
     merged.plot(column="cases_count", cmap="PuRd", legend=True, ax=ax)
 
     formatter = mtick.StrMethodFormatter("{x:,.0f}")
@@ -293,6 +300,32 @@ def plot_choropleth(input_df: pd.DataFrame):
     cax.tick_params(labelcolor="white")
 
     return fig
+
+
+def extract_greater_syd_lgas() -> pd.DataFrame:
+    page = wikipedia.page("Local government areas of New South Wales")
+    metro_syd_df = pd.read_html(page.html(), header=1)[0]
+    syd_surrounds_df = pd.read_html(page.html(), header=1)[1]
+    greater_syd_lgas = pd.concat(
+        [
+            metro_syd_df[["Local government area"]],
+            syd_surrounds_df[["Local government area"]],
+        ],
+        ignore_index=True,
+    ).rename(columns={"Local government area": "lga"})
+
+    SUBSTR_TO_REMOVE = ["Council", "City", ", ", "of", "Municipality", "Shire"]
+    for substr in SUBSTR_TO_REMOVE:
+        greater_syd_lgas.lga = greater_syd_lgas.lga.str.replace(substr, "")
+
+    LGA_MAPPING_DICT = {
+        "Hunter's Hill": "Hunters Hill",
+        "Sutherland": "Sutherland Shire",
+        "The Hills": "The Hills Shire",
+    }
+    greater_syd_lgas.lga = greater_syd_lgas.lga.str.strip().replace(LGA_MAPPING_DICT)
+
+    return greater_syd_lgas.sort_values("lga")
 
 
 def main():
@@ -349,7 +382,11 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**Total Cases by LGA**")
-        choropleth = plot_choropleth(covid_df)
+        region_select = st.selectbox(
+            "Please select a region", ["NSW", "Greater Sydney"]
+        )
+        greater_syd_selected = region_select == "Greater Sydney"
+        choropleth = plot_choropleth(covid_df, greater_syd_only=greater_syd_selected)
         st.pyplot(choropleth, use_container_width=True)
 
     with col2:
