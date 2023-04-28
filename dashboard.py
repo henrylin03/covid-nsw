@@ -246,8 +246,6 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
         linewidth=1,
         ax=ax,
     )
-    # ax.set_facecolor("#555555")
-    # fig.set_facecolor("#555555")
 
     for k in ax.spines.keys():
         try:
