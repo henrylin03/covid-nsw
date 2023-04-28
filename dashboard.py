@@ -350,12 +350,12 @@ def main():
     with col1:
         st.markdown("**Total Cases by LGA**")
         choropleth = plot_choropleth(covid_df)
-        st.pyplot(choropleth)
+        st.pyplot(choropleth, use_container_width=True)
 
     with col2:
         st.markdown("**Top 10 LGAs by Total Cases**")
         cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
-        st.pyplot(cases_by_lga_barplot)
+        st.pyplot(cases_by_lga_barplot, use_container_width=True)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
