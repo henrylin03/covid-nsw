@@ -159,22 +159,24 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
 
 
 def plot_daily_cases_area_chart(input_df: pd.DataFrame):
-    sns.set_style("dark", {"axes.facecolor": "0.994"})
-    palette = sns.color_palette("pastel")
+    # sns.set_style("dark")
+    sns.set_context("notebook")
+    palette = sns.color_palette("PuRd")
 
     daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
     daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
     fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
+    ax.set_facecolor("#F5F5F5")
     sns.lineplot(
         x="date",
         y="cases_count",
         data=daily_cases,
         ax=ax,
         linewidth=0.65,
-        color="#1f77b4",
+        color="#8B008B",
     )
     plt.fill_between(
-        x=daily_cases.date, y1=daily_cases.cases_count, color=palette[0], alpha=0.5
+        x=daily_cases.date, y1=daily_cases.cases_count, color="#8B008B", alpha=0.15
     )
 
     ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
@@ -198,6 +200,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
 
 
 def label_areaplot_with_waves(axes_obj):
+    palette = sns.color_palette("PuRd")
     # per Australian Bureau of Statistics (ABS), when a variant circulates predominantly for a period of time in a community, this is a "wave": https://www.abs.gov.au/articles/covid-19-mortality-wave
     # primarily, I based this off _Australia's_ waves (not NSW-specific) per ABS: https://www.abs.gov.au/articles/covid-19-mortality-wave. NSW waves, where appropriate, are extracted from various news sources. Vic's wave (Jun 2020 to Oct 2020 approx) is excluded.
     COVID_WAVES = {
@@ -212,9 +215,7 @@ def label_areaplot_with_waves(axes_obj):
         start_date, end_date = pd.to_datetime(dates, format="%Y-%m-%d")
         midway_date = start_date + (end_date - start_date) / 2
 
-        axes_obj.axvspan(
-            start_date, end_date, alpha=0.2, color="#9edae5"
-        )  # light blue-green
+        axes_obj.axvspan(start_date, end_date, alpha=0.1, color=palette[-2])
         label_x = midway_date
         label_y = 3500
         axes_obj.annotate(
@@ -225,7 +226,8 @@ def label_areaplot_with_waves(axes_obj):
             ha="center",
             va="center",
             fontsize=4.2,
-            color="#1088a8"  # dark blue-green
+            weight="bold",
+            color=palette[-3]
             # bbox=dict(facecolor=colour, edgecolor=colour, alpha=0.2),
         )
     return
@@ -233,24 +235,24 @@ def label_areaplot_with_waves(axes_obj):
 
 def plot_total_cases_by_lga(input_df: pd.DataFrame):
     df = total_cases_by_lga(input_df)
-    fig, ax = plt.subplots(figsize=(7, 1.3), dpi=1000)
+    fig, ax = plt.subplots(figsize=(7, 6))
     sns.barplot(
         x="cases_count",
         y="lga",
         data=df.head(10),
         orient="h",
         saturation=1,
-        color="#c9e5ff",
-        edgecolor="#1f77b4",
-        linewidth=0.82,
+        color="#8B008B",
+        edgecolor="white",
+        linewidth=1.5,
         ax=ax,
+        alpha=0.8,
     )
-    ax.set_xlabel("Total Cases ('000s)", fontsize=5)
-    ax.set_ylabel("LGA", fontsize=5)
-    ax.tick_params(axis="both", labelsize=5)
-    ax.xaxis.set_major_formatter(
-        mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x / 1000))
-    )
+    ax.set_facecolor("#F5F5F5")
+    ax.set_xlabel("Total Cases", fontsize=8)
+    ax.set_ylabel("LGA", fontsize=8)
+    ax.tick_params(axis="both", labelsize=8)
+    ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x)))
     return fig
 
 
@@ -342,14 +344,14 @@ def main():
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**Top 10 LGAs by Total Cases**")
-        cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
-        st.pyplot(cases_by_lga_barplot)
-
-    with col2:
         st.markdown("**Total Cases by LGA**")
         choropleth = plot_choropleth(covid_df)
         st.pyplot(choropleth)
+
+    with col2:
+        st.markdown("**Top 10 LGAs by Total Cases**")
+        cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
+        st.pyplot(cases_by_lga_barplot)
 
     # dataframe
     st.dataframe(covid_df, use_container_width=True)
