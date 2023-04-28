@@ -278,7 +278,7 @@ def plot_choropleth(input_df: pd.DataFrame):
     merged = geodf.merge(total_cases_by_lga_df)
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.axis("off")
-    fig.set_facecolor("#555555")
+    fig.set_facecolor("#999999")
     merged.plot(column="cases_count", cmap="PuRd", legend=True, ax=ax)
 
     formatter = mtick.StrMethodFormatter("{x:,.0f}")
