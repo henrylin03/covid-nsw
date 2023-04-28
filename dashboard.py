@@ -183,7 +183,7 @@ def plot_daily_cases_area_chart(input_df: pd.DataFrame):
 
     ax.xaxis.set_minor_locator(md.MonthLocator(bymonth=range(13)))
     ax.xaxis.set_minor_formatter(md.DateFormatter("%b"))
-    ax.xaxis.set_major_locator(md.YearLocator(month=7, day=2))
+    ax.xaxis.set_major_locator(md.YearLocator(month=1, day=2))
     ax.xaxis.set_major_formatter(md.DateFormatter("\n\n%Y"))
     plt.setp(ax.xaxis.get_minorticklabels(), rotation=90)
     ax.tick_params(axis="x", which="minor", labelsize=4.5)
@@ -258,6 +258,7 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     ax.set_xlabel("Total Cases", fontsize=8)
     ax.set_ylabel("LGA", fontsize=8)
     ax.tick_params(axis="both", labelsize=10)
+    ax.tick_params(axis="x", rotation=45)
     ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda x, _: "{:,.0f}".format(x)))
     return fig
 
