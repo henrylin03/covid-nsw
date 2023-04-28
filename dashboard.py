@@ -215,7 +215,7 @@ def label_areaplot_with_waves(axes_obj):
         start_date, end_date = pd.to_datetime(dates, format="%Y-%m-%d")
         midway_date = start_date + (end_date - start_date) / 2
 
-        axes_obj.axvspan(start_date, end_date, alpha=0.1, color=palette[-2])
+        axes_obj.axvspan(start_date, end_date, alpha=0.05, color=palette[-2])
         label_x = midway_date
         label_y = 3500
         axes_obj.annotate(
