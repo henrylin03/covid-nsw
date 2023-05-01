@@ -82,17 +82,6 @@ def total_cases_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return totalled_df
 
 
-def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
-    res_df = input_df.copy()
-    lga_name = st.sidebar.selectbox(
-        "Local Government Area (LGA)",
-        get_lgas(),
-    )
-    if lga_name == "All":
-        return res_df
-    return res_df[res_df.lga == lga_name]
-
-
 def impute_zero_days_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     # generate every day's date
     dataset_start_date = get_start_date()
@@ -263,7 +252,24 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
-def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
+# def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
+#     res_df = input_df.copy()
+#     lga_name = st.sidebar.selectbox(
+#         "Local Government Area (LGA)",
+#         get_lgas(),
+#     )
+#     if lga_name == "All":
+#         return res_df
+#     return res_df[res_df.lga == lga_name]
+
+
+def filter_df_by_region(input_df: pd.DataFrame) -> pd.DataFrame:
+    greater_syd_lgas_df = extract_greater_syd_lgas()
+    syd_only_df = input_df[input_df.lga.isin(set(greater_syd_lgas_df.lga))]
+    return syd_only_df
+
+
+def plot_choropleth(input_df: pd.DataFrame, region_selected: str):
     SHP_PATH = "./data/nsw-lga-boundaries/nsw-lga-boundaries.shp"  # https://data.peclet.com.au/explore/dataset/nsw-lga-boundaries/export/?location=6,-30.58118,150.15015&basemap=jawg.streets
     geodf = gpd.read_file(SHP_PATH)
     geodf = geodf.to_crs(epsg=28355)
@@ -289,10 +295,7 @@ def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
     ax.axis("off")
     fig.set_facecolor("#777777")
 
-    if greater_syd_only:
-        greater_syd_lgas_df = extract_greater_syd_lgas()
-        merged = merged[merged.abb_name.isin(set(greater_syd_lgas_df.lga))]
-
+    if "sydney" in region_selected.lower():
         # label lgas
         top_lgas = merged.nlargest(5, "cases_count").abb_name.to_list()
         for l in top_lgas:
@@ -364,8 +367,14 @@ def main():
     st.title(":chart_with_upwards_trend: COVID in NSW")
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
+    # filters
     st.sidebar.header("Filters")
-    filtered_df = filter_df_by_lga(zero_day_imputed_df)
+    region_selected = st.sidebar.radio("", ("NSW", "Greater Sydney"))
+    if "sydney" in region_selected.lower():
+        zero_day_imputed_df = filter_df_by_region(zero_day_imputed_df)
+    region_label = (
+        f" _({region_selected})_" if region_selected == "Greater Sydney" else ""
+    )
 
     # metrics
     total_cases_m, last_zero_day_m = st.columns(2)
@@ -382,37 +391,32 @@ def main():
     )
 
     total_cases_m.metric(
-        label="Total Cases",
-        value=f"{int(covid_df.cases_count.sum()):,}",
+        label=f"Total Cases{region_label}",
+        value=f"{int(zero_day_imputed_df.cases_count.sum()):,}",
         delta=f"{latest_daily_cases - two_days_before_cases:,} daily",
         delta_color="inverse",
         help='Due to time-lag in reporting, cases are reported up to the "Last updated" date',
     )
 
-    zero_day_dict = find_zero_day_stats(covid_df)
+    zero_day_dict = find_zero_day_stats(zero_day_imputed_df)
     last_zero_day_m.metric(
-        label='Last "Zero" Day',
+        label=f'Last "Zero" Day{region_label}',
         value=datetime.datetime.strftime(zero_day_dict["latest_zero_day"], "%#d %b %Y"),
     )
 
     # visualisations
-    st.markdown("**Daily Cases**")
+    st.markdown(f"**Daily Cases**{region_label}")
     daily_cases_area_chart = plot_daily_cases_area_chart(zero_day_imputed_df)
     st.pyplot(daily_cases_area_chart)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("**Total Cases by LGA**")
-        region_select = st.radio(
-            "Region",
-            options=("NSW", "Greater Sydney"),
-        )
-        greater_syd_selected = region_select == "Greater Sydney"
-        choropleth = plot_choropleth(covid_df, greater_syd_only=greater_syd_selected)
+        st.markdown(f"**Total Cases by LGA**{region_label}")
+        choropleth = plot_choropleth(zero_day_imputed_df, region_selected)
         st.pyplot(choropleth, use_container_width=True)
 
     with col2:
-        st.markdown("**Top 10 LGAs by Total Cases**")
+        st.markdown(f"**Top 10 LGAs by Total Cases**{region_label}")
         cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
         st.pyplot(cases_by_lga_barplot, use_container_width=True)
 
