@@ -82,17 +82,6 @@ def total_cases_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     return totalled_df
 
 
-def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
-    res_df = input_df.copy()
-    lga_name = st.sidebar.selectbox(
-        "Local Government Area (LGA)",
-        get_lgas(),
-    )
-    if lga_name == "All":
-        return res_df
-    return res_df[res_df.lga == lga_name]
-
-
 def impute_zero_days_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
     # generate every day's date
     dataset_start_date = get_start_date()
@@ -263,7 +252,31 @@ def plot_total_cases_by_lga(input_df: pd.DataFrame):
     return fig
 
 
-def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
+# def filter_df_by_lga(input_df: pd.DataFrame) -> pd.DataFrame:
+#     res_df = input_df.copy()
+#     lga_name = st.sidebar.selectbox(
+#         "Local Government Area (LGA)",
+#         get_lgas(),
+#     )
+#     if lga_name == "All":
+#         return res_df
+#     return res_df[res_df.lga == lga_name]
+
+
+def is_filtered_on_syd() -> bool:
+    filtered_region = st.session_state["region_selected"]
+    return filtered_region == "Greater Sydney"
+
+
+def filter_df_by_region(input_df: pd.DataFrame) -> pd.DataFrame:
+    if not is_filtered_on_syd():
+        return input_df.copy()
+    greater_syd_lgas_df = extract_greater_syd_lgas()
+    syd_only_df = input_df[input_df.lga.isin(set(greater_syd_lgas_df.lga))]
+    return syd_only_df
+
+
+def plot_choropleth(input_df: pd.DataFrame):
     SHP_PATH = "./data/nsw-lga-boundaries/nsw-lga-boundaries.shp"  # https://data.peclet.com.au/explore/dataset/nsw-lga-boundaries/export/?location=6,-30.58118,150.15015&basemap=jawg.streets
     geodf = gpd.read_file(SHP_PATH)
     geodf = geodf.to_crs(epsg=28355)
@@ -289,10 +302,7 @@ def plot_choropleth(input_df: pd.DataFrame, greater_syd_only=False):
     ax.axis("off")
     fig.set_facecolor("#777777")
 
-    if greater_syd_only:
-        greater_syd_lgas_df = extract_greater_syd_lgas()
-        merged = merged[merged.abb_name.isin(set(greater_syd_lgas_df.lga))]
-
+    if is_filtered_on_syd():
         # label lgas
         top_lgas = merged.nlargest(5, "cases_count").abb_name.to_list()
         for l in top_lgas:
@@ -364,8 +374,11 @@ def main():
     st.title(":chart_with_upwards_trend: COVID in NSW")
     st.write(f"_Last updated: **{dataset_last_updated_date_formatted}**_")
 
+    # filters
     st.sidebar.header("Filters")
-    filtered_df = filter_df_by_lga(zero_day_imputed_df)
+    # filtered_df = filter_df_by_lga(zero_day_imputed_df)
+    region_selected = st.sidebar.radio("Region", ("New South Wales", "Greater Sydney"))
+    region_filtered_df = filter_df_by_region(covid_df)
 
     # metrics
     total_cases_m, last_zero_day_m = st.columns(2)
@@ -403,12 +416,7 @@ def main():
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**Total Cases by LGA**")
-        region_select = st.radio(
-            "Region",
-            options=("NSW", "Greater Sydney"),
-        )
-        greater_syd_selected = region_select == "Greater Sydney"
-        choropleth = plot_choropleth(covid_df, greater_syd_only=greater_syd_selected)
+        choropleth = plot_choropleth(covid_df)
         st.pyplot(choropleth, use_container_width=True)
 
     with col2:
