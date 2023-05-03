@@ -416,8 +416,6 @@ def main():
         cases_by_lga_barplot = plot_total_cases_by_lga(zero_day_imputed_df)
         st.pyplot(cases_by_lga_barplot, use_container_width=True)
 
-    # dataframe
-    st.dataframe(covid_df, use_container_width=True)
 
-
-main()
+if __name__ == "__main__":
+    main()
