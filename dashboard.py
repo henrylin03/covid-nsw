@@ -150,9 +150,8 @@ def find_zero_day_stats(input_df: pd.DataFrame) -> dict:
 
 
 def plot_daily_cases_area_chart(input_df: pd.DataFrame):
-    # sns.set_style("dark")
+    sns.set_style("dark")
     sns.set_context("notebook")
-    palette = sns.color_palette("PuRd")
 
     daily_cases = input_df.groupby("date").sum(numeric_only=True).reset_index()
     daily_cases.date = pd.to_datetime(daily_cases.date, format="%Y-%m-%d")
@@ -369,7 +368,7 @@ def main():
 
     # filters
     st.sidebar.header("Filters")
-    region_selected = st.sidebar.radio("", ("NSW", "Greater Sydney"))
+    region_selected = st.sidebar.radio("Region", ("NSW", "Greater Sydney"))
     if "sydney" in region_selected.lower():
         zero_day_imputed_df = filter_df_by_region(zero_day_imputed_df)
     region_label = (
