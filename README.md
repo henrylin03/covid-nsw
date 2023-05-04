@@ -6,7 +6,7 @@ This is a Streamlit dashboard for exploring and visualising the impact of the CO
 
 This project includes the following components
 
-- **Data Pipeline Building**: The data pipeline is built in Python and automates fetching, cleaning, and analysing the data.
+- **Data Pipeline Building**: The data pipeline is built in Python libraries `selenium` and `pandas`, automating data fetching, cleaning, and analysis.
 - **Data Cleaning & Preparation**: The raw data is cleaned and transformed to remove duplicates, missing values, and other inconsistencies that would affect the analysis.
 - **Data Exploration & Analysis**: The exploratory data analysis (EDA) is done in a Jupyter notebook using SQL and Python libraries such as `pandas`, `seaborn` and `matplotlib`. The notebook is included in this repository as `analysis.ipynb`.
 - **Data Visualisations**: The dashboard includes several visualisations using `seaborn` and `matplotlib` libraries to communicate key findings and insights from the data.
@@ -17,7 +17,8 @@ This project includes the following components
 - **`streamlit`**: for building the interactive dashboard
 - **`seaborn` & `matplotlib`**: for data visualisation and exploration
 - **`pandas`**: for data cleaning, preparation, and analysis
-- **`wikipedia`**: for downloading tables from Wikipedia pages
+- **`selenium`**: for data fetching from browser
+- **`wikipedia`** : for data fetching using Wikipedia API
 - **SQL (`sqlite`)**: for data cleaning, preparation, and manipulation
 
 ## How to Use the Project
