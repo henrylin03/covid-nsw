@@ -1,7 +1,7 @@
 import datetime
 import streamlit as st
 import wikipedia
-from selenium import webdriver
+from selenium:4.10.0 import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
