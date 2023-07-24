@@ -1,7 +1,7 @@
 import datetime
 import streamlit as st
 import wikipedia
-from selenium:4.10.0 import webdriver
+from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
@@ -40,15 +40,10 @@ def get_start_date() -> datetime.date:
 
 @st.cache_data
 def get_last_updated_date() -> datetime.date:
-    DRIVER = setup_chromedriver()
-    DATA_NSW_URL = "https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q="
-    DRIVER.get(DATA_NSW_URL)
-    last_updated_date_str = DRIVER.find_element(
-        By.XPATH, "//span[@itemprop='dateModified']"
-    ).text
-    DRIVER.close()
-
-    return datetime.datetime.strptime(last_updated_date_str, "%d/%m/%Y").date()
+    covid_df = load_and_clean_csv()
+    last_updated_date = max(covid_df.date)
+    last_updated_date_datetime = datetime.datetime.strptime(last_updated_date, "%Y-%m-%d")
+    return last_updated_date_datetime.date()
 
 
 def setup_chromedriver() -> webdriver.Chrome:
