@@ -1,42 +1,28 @@
 # COVID-19 in NSW: Dashboard
 
-This is a Streamlit dashboard for exploring and visualising the impact of the COVID-19 pandemic in New South Wales (NSW), Australia. The dashboard allows users to interactively explore daily reported cases from [NSW Health](https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q=), and gain insights into the pandemic's impact on NSW.
+This is a Python dashboard visualising Covid's impact on New South Wales (NSW), Australia. Built on the [Streamlit](https://streamlit.io/) library, this dashboard allows users to interactively explore daily, reported cases from [NSW Health](https://data.nsw.gov.au/search/dataset/ds-nsw-ckan-aefcde60-3b0c-4bc0-9af1-6fe652944ec2/details?q=).
 
 ## Project Overview
 
-This project includes the following components
+This project includes:
 
-- **Data Pipeline Building**: The data pipeline is built in Python libraries `selenium` and `pandas`, automating data fetching, cleaning, and analysis.
-- **Data Cleaning & Preparation**: The raw data is cleaned and transformed to remove duplicates, missing values, and other inconsistencies that would affect the analysis.
-- **Data Exploration & Analysis**: The exploratory data analysis (EDA) is done in a Jupyter notebook using SQL and Python libraries such as `pandas`, `seaborn` and `matplotlib`. The notebook is included in this repository as `analysis.ipynb`.
-- **Data Visualisations**: The dashboard includes several visualisations using `seaborn` and `matplotlib` libraries to communicate key findings and insights from the data.
 - **Interactive Dashboard**: The interactive `streamlit` dashboard is located in `dashboard.py`. It allows users to explore NSW's COVID-19 data, including adjusting visualisation parameters to gain insights.
+- **Data Pipeline Building**: The data pipeline is built in `pandas`, automating data fetching, cleaning, and analysis.
+- **Data Cleaning & Preparation**: The raw data is cleaned and transformed to remove duplicates, missing values, and other inconsistencies that would impact analyses.
+- **Data Exploration & Analysis**: Exploratory data analysis (EDA) is done in a Jupyter notebook using SQL and Python libraries such as `pandas`, `seaborn` and `matplotlib`. The notebook is included in this repository as `analysis.ipynb`.
+- **Data Visualisations**: The dashboard includes `seaborn` and `matplotlib` visualisations to highlight key patterns.
 
 ## Technologies Used
 
 - **`streamlit`**: for building the interactive dashboard
 - **`seaborn` & `matplotlib`**: for data visualisation and exploration
 - **`pandas`**: for data cleaning, preparation, and analysis
-- **`selenium`**: for data fetching from browser
 - **`wikipedia`** : for data fetching using Wikipedia API
 - **SQL (`sqlite`)**: for data cleaning, preparation, and manipulation
 
-## How to Use the Project
+## How To Use
 
-To access the Streamlit dashboard and explore the COVID-19 data for NSW:
-
-1. Clone this repository to your local machine:
-   ```bash
-   git clone https://github.com/your_username/covid-nsw.git
-   ```
-2. Install the required libraries:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the streamlit app:
-   ```bash
-   streamlit run dashboard.py
-   ```
+Access the dashboard via [covid-nsw.streamlit.app](https://covid-nsw.streamlit.app/).
 
 To replicate my EDA, please open and run the `analysis.ipynb` Jupyter notebook to see the results of the analysis:
 
