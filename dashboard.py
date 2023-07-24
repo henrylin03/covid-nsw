@@ -1,10 +1,6 @@
 import datetime
 import streamlit as st
 import wikipedia
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -42,17 +38,10 @@ def get_start_date() -> datetime.date:
 def get_last_updated_date() -> datetime.date:
     covid_df = load_and_clean_csv()
     last_updated_date = max(covid_df.date)
-    last_updated_date_datetime = datetime.datetime.strptime(last_updated_date, "%Y-%m-%d")
-    return last_updated_date_datetime.date()
-
-
-def setup_chromedriver() -> webdriver.Chrome:
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    options.add_argument("--start-maximized")
-    return webdriver.Chrome(
-        options=options, service=Service(ChromeDriverManager().install())
+    last_updated_date_datetime = datetime.datetime.strptime(
+        last_updated_date, "%Y-%m-%d"
     )
+    return last_updated_date_datetime.date()
 
 
 @st.cache_data
